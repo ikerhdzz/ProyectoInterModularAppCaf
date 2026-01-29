@@ -1,0 +1,237 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.aplicacion {
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #333;
+}
+
+.aplicacion__contenedor {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+@media (max-width: 768px) {
+  .aplicacion__contenedor {
+    grid-template-columns: 1fr;
+  }
+}
+
+.encabezado {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.encabezado h1 {
+  color: white;
+  font-size: 28px;
+  margin: 0;
+}
+
+.seccion-menu {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.seccion-menu h2 {
+  margin-bottom: 20px;
+  color: #667eea;
+  font-size: 24px;
+}
+
+.seccion-menu__cuadricula {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.tarjeta-menu {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: white;
+}
+
+.tarjeta-menu:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.tarjeta-menu__nombre {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.tarjeta-menu__precio {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.seccion-pedido {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.seccion-pedido h2 {
+  margin-bottom: 20px;
+  color: #667eea;
+  font-size: 24px;
+}
+
+.seccion-pedido__vacio {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-style: italic;
+}
+
+.seccion-pedido__lista {
+  margin-bottom: 20px;
+}
+
+.elemento-pedido {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.elemento-pedido__info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.elemento-pedido__nombre {
+  font-weight: bold;
+}
+
+.elemento-pedido__precio {
+  color: #667eea;
+  font-size: 14px;
+}
+
+.elemento-pedido__controles {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.elemento-pedido__controles button {
+  background: #667eea;
+  color: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.elemento-pedido__controles button:hover {
+  background: #5568d3;
+}
+
+.elemento-pedido__controles input {
+  width: 50px;
+  text-align: center;
+  padding: 5px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.totales-pedido {
+  background: #f0f0f0;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.totales-pedido__fila {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 16px;
+}
+
+.totales-pedido__fila--final {
+  border-top: 2px solid #667eea;
+  margin-top: 10px;
+  padding-top: 15px;
+  font-weight: bold;
+  font-size: 20px;
+  color: #667eea;
+}
+
+.botones-accion {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.botones-accion button {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.botones-accion__aceptar {
+  background: #10b981;
+  color: white;
+}
+
+.botones-accion__aceptar:hover {
+  background: #059669;
+  transform: translateY(-2px);
+}
+
+.botones-accion__limpiar {
+  background: #f59e0b;
+  color: white;
+}
+
+.botones-accion__limpiar:hover {
+  background: #d97706;
+  transform: translateY(-2px);
+}
+
+.botones-accion__salir {
+  background: #ef4444;
+  color: white;
+}
+
+.botones-accion__salir:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+}
