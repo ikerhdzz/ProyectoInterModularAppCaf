@@ -25,5 +25,29 @@ public class UsuarioService {
                 .filter(u -> passwordEncoder.matches(password, u.getPassword()))
                 .orElse(null);
     }
+
+
+    public Usuario obtenerPorId(Long id) {
+        return usuarioRepository.findById(id).orElse(null);
+    }
+
+    public Usuario actualizar(Long id, Usuario datos) {
+        return usuarioRepository.findById(id).map(u -> {
+            u.setNombre(datos.getNombre());
+            u.setEmail(datos.getEmail());
+            if (datos.getPassword() != null && !datos.getPassword().isEmpty()) {
+                u.setPassword(passwordEncoder.encode(datos.getPassword()));
+            }
+            return usuarioRepository.save(u);
+        }).orElse(null);
+    }
+
+    public boolean eliminar(Long id) {
+        return usuarioRepository.findById(id).map(u -> {
+            usuarioRepository.delete(u);
+            return true;
+        }).orElse(false);
+    }
 }
+
 
