@@ -1,38 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SeccionMenu } from './componentes/SeccionMenu';
 import { SeccionPedido } from './componentes/SeccionPedido';
 import type { ElementoMenu, ElementoPedido } from './datos/tipos';
-import { datosMenu } from './datos/datosMenu';
 import './App.css';
 
 export const App: React.FC = () => {
+
+  // ESTADO DEL MENÚ (productos del backend)
+  const [menu, setMenu] = useState<ElementoMenu[]>([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8080/api/productos")
+      .then(res => res.json())
+      .then(data => setMenu(data))
+      .catch(err => console.error("Error cargando productos:", err));
+  }, []);
+
+  // ESTADO DEL PEDIDO
   const [pedido, setPedido] = useState<ElementoPedido[]>([]);
 
   const agregarAlPedido = (elemento: ElementoMenu) => {
-    const elementoExistente = pedido.find(
-      elementoPedido => elementoPedido.nombre === elemento.nombre
-    );
+    const existente = pedido.find(p => p.id === elemento.id);
 
-    if (elementoExistente) {
+    if (existente) {
       setPedido(
-        pedido.map(elementoPedido =>
-          elementoPedido.nombre === elemento.nombre
-            ? { ...elementoPedido, cantidad: elementoPedido.cantidad + 1 }
-            : elementoPedido
+        pedido.map(p =>
+          p.id === elemento.id
+            ? { ...p, cantidad: p.cantidad + 1 }
+            : p
         )
       );
     } else {
-      setPedido([...pedido, { ...elemento, cantidad: 1 }]);
+      setPedido([
+        ...pedido,
+        {
+          id: elemento.id,
+          nombre: elemento.nombre,
+          precio: elemento.precio,
+          cantidad: 1
+        }
+      ]);
     }
   };
 
-  const actualizarCantidad = (nombre: string, cantidad: number) => {
+  // AHORA SE USA ID EN VEZ DE NOMBRE
+  const actualizarCantidad = (id: number, cantidad: number) => {
     if (cantidad <= 0) {
-      setPedido(pedido.filter(elemento => elemento.nombre !== nombre));
+      setPedido(pedido.filter(e => e.id !== id));
     } else {
       setPedido(
-        pedido.map(elemento =>
-          elemento.nombre === nombre ? { ...elemento, cantidad } : elemento
+        pedido.map(e =>
+          e.id === id ? { ...e, cantidad } : e
         )
       );
     }
@@ -50,7 +68,7 @@ export const App: React.FC = () => {
 
       <div className="aplicacion__contenedor">
         <SeccionMenu
-          elementosMenu={datosMenu}
+          elementosMenu={menu}
           alAgregarAlPedido={agregarAlPedido}
         />
 
