@@ -1,9 +1,6 @@
 package com.cafeapp.backend.controlador;
 
-import com.cafeapp.backend.dto.LoginRequest;
-import com.cafeapp.backend.dto.RegistroRequest;
-import com.cafeapp.backend.dto.TokenResponse;
-import com.cafeapp.backend.dto.UsuarioResponse;
+import com.cafeapp.backend.dto.*;
 import com.cafeapp.backend.modelo.Curso;
 import com.cafeapp.backend.modelo.Rol;
 import com.cafeapp.backend.modelo.Usuario;
@@ -66,7 +63,7 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
 
         Usuario usuario = usuarioService.login(request.getEmail(), request.getPassword());
 
@@ -76,6 +73,16 @@ public class AuthController {
 
         String token = jwtUtil.generarToken(usuario.getEmail());
 
-        return ResponseEntity.ok(new TokenResponse(token));
+        UsuarioResponse usuarioResponse = new UsuarioResponse(
+                usuario.getId(),
+                usuario.getNombre(),
+                usuario.getEmail(),
+                usuario.getRol().getNombre().toUpperCase(),
+                usuario.getCurso() != null ? usuario.getCurso().getNombre() : null
+        );
+
+
+        return ResponseEntity.ok(new LoginResponse(token, usuarioResponse));
     }
+
 }
