@@ -2,6 +2,8 @@ package com.cafeapp.backend.servicio;
 
 import com.cafeapp.backend.dto.DetallePedidoResponse;
 import com.cafeapp.backend.dto.ExtraDetalleResponse;
+import com.cafeapp.backend.dto.PedidoFrontendRequest;
+import com.cafeapp.backend.dto.PedidoTotales;
 import com.cafeapp.backend.modelo.*;
 import com.cafeapp.backend.repositorio.*;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +26,7 @@ public class PedidoService {
     private final TicketRepository ticketRepository;
     private final ExtraProductoRepository extraProductoRepository;
     private final DetalleExtraRepository detalleExtraRepository;
+    private final ProductoRepository productoRepository;
 
     public PedidoService(UsuarioRepository usuarioRepository,
                          PedidoRepository pedidoRepository,
@@ -33,7 +36,8 @@ public class PedidoService {
                          TurnoRepository turnoRepository,
                          TicketRepository ticketRepository,
                          ExtraProductoRepository extraProductoRepository,
-                         DetalleExtraRepository detalleExtraRepository) {
+                         DetalleExtraRepository detalleExtraRepository,
+                         ProductoRepository productoRepository) {
         this.usuarioRepository = usuarioRepository;
         this.pedidoRepository = pedidoRepository;
         this.detallePedidoRepository = detallePedidoRepository;
@@ -43,6 +47,7 @@ public class PedidoService {
         this.ticketRepository = ticketRepository;
         this.extraProductoRepository = extraProductoRepository;
         this.detalleExtraRepository = detalleExtraRepository;
+        this.productoRepository = productoRepository;
     }
 
     private Usuario usuarioActual() {
@@ -56,13 +61,24 @@ public class PedidoService {
                 .orElseThrow(() -> new RuntimeException("Turno no encontrado"));
 
         LocalTime limite = turno.getHoraLimite();
-
         LocalTime ahora = LocalTime.now(ZoneId.of("Atlantic/Canary"));
+
+        if (limite == null) {
+            return;
+        }
+
+        // Permitir pedidos entre medianoche y las 05:00
+        if (ahora.isAfter(LocalTime.of(0, 0)) && ahora.isBefore(LocalTime.of(5, 0))) {
+            return;
+        }
 
         if (ahora.isAfter(limite)) {
             throw new RuntimeException("El turno '" + turno.getNombre() + "' ya no está disponible");
         }
     }
+
+
+
 
 
     public Pedido crearPedidoDesdeCarrito(Integer turnoId) {
@@ -220,6 +236,36 @@ public class PedidoService {
                 })
                 .sum();
     }
+
+    public PedidoTotales calcularTotalesPedido(Long pedidoId) {
+
+        double subtotal = calcularTotalPedido(pedidoId);
+        double impuesto = subtotal * 0.07;
+        double total = subtotal + impuesto;
+
+        return new PedidoTotales(subtotal, impuesto, total);
+    }
+
+    public Pedido crearPedidoDesdeFrontend(PedidoFrontendRequest request) {
+
+        validarTurno(request.getTurnoId());
+        Usuario usuario = usuarioActual();
+
+        Pedido pedido = pedidoRepository.save(new Pedido(usuario, "PENDIENTE", request.getTurnoId()));
+
+        for (PedidoFrontendRequest.ItemPedidoFrontend item : request.getItems()) {
+
+            Producto producto = productoRepository.findById(item.getProductoId())
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+            DetallePedido detalle = new DetallePedido(pedido, producto, item.getCantidad());
+            detallePedidoRepository.save(detalle);
+        }
+
+        return pedido;
+    }
+
+
 
 
 }
