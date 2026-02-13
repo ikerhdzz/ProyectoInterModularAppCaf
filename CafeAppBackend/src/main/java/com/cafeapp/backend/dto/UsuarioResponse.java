@@ -1,5 +1,4 @@
 package com.cafeapp.backend.dto;
-
 public class UsuarioResponse {
 
     private Long id;
@@ -7,6 +6,7 @@ public class UsuarioResponse {
     private String email;
     private String rol;
     private String curso;
+    private String token;
 
     public UsuarioResponse(Long id, String nombre, String email, String rol, String curso) {
         this.id = id;
@@ -21,4 +21,7 @@ public class UsuarioResponse {
     public String getEmail() { return email; }
     public String getRol() { return rol; }
     public String getCurso() { return curso; }
+
+    public String getToken() { return token; }
+    public void setToken(String token) { this.token = token; }
 }

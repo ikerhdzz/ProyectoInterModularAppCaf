@@ -66,7 +66,7 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<UsuarioResponse> login(@Valid @RequestBody LoginRequest request) {
 
         Usuario usuario = usuarioService.login(request.getEmail(), request.getPassword());
 
@@ -76,6 +76,17 @@ public class AuthController {
 
         String token = jwtUtil.generarToken(usuario.getEmail());
 
-        return ResponseEntity.ok(new TokenResponse(token));
+        UsuarioResponse response = new UsuarioResponse(
+                usuario.getId(),
+                usuario.getNombre(),
+                usuario.getEmail(),
+                usuario.getRol().getNombre(),
+                usuario.getCurso() != null ? usuario.getCurso().getNombre() : null
+        );
+
+        response.setToken(token); // añade token al DTO
+
+        return ResponseEntity.ok(response);
     }
+
 }
