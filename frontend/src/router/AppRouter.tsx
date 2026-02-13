@@ -7,6 +7,10 @@ import { DashboardEmpleado } from "../pages/empleado/DashboardEmpleado";
 import { DashboardCliente } from "../pages/cliente/DashboardCliente";
 import { Carrito } from "../pages/cliente/Carrito";
 
+// Nuevos imports del admin
+import { ProductosAdmin } from "../pages/admin/ProductosAdmin";
+import { UsuariosAdmin } from "../pages/admin/UsuariosAdmin";
+
 const PrivateRoute = ({
   children,
   role,
@@ -25,8 +29,10 @@ const PrivateRoute = ({
 export const AppRouter = () => {
   return (
     <Routes>
+      {/* Login */}
       <Route path="/login" element={<Login />} />
 
+      {/* Dashboard Admin */}
       <Route
         path="/admin"
         element={
@@ -36,6 +42,27 @@ export const AppRouter = () => {
         }
       />
 
+      {/* Gestión de productos */}
+      <Route
+        path="/admin/productos"
+        element={
+          <PrivateRoute role="ADMIN">
+            <ProductosAdmin />
+          </PrivateRoute>
+        }
+      />
+
+      {/* Gestión de usuarios */}
+      <Route
+        path="/admin/usuarios"
+        element={
+          <PrivateRoute role="ADMIN">
+            <UsuariosAdmin />
+          </PrivateRoute>
+        }
+      />
+
+      {/* Dashboard Empleado */}
       <Route
         path="/empleado"
         element={
@@ -45,6 +72,7 @@ export const AppRouter = () => {
         }
       />
 
+      {/* Dashboard Cliente */}
       <Route
         path="/cliente"
         element={
@@ -54,6 +82,7 @@ export const AppRouter = () => {
         }
       />
 
+      {/* Carrito del cliente */}
       <Route
         path="/cliente/carrito"
         element={
@@ -63,6 +92,7 @@ export const AppRouter = () => {
         }
       />
 
+      {/* Redirección por defecto */}
       <Route path="*" element={<Navigate to="/login" />} />
     </Routes>
   );
