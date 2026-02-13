@@ -1,79 +1,113 @@
-import React from 'react';
-import type { ElementoPedido as TipoElementoPedido } from '../datos/tipos';
-import { ElementoPedido } from './ElementoPedido';
-import { TotalesPedido } from './TotalesPedido';
-import { BotonesAccion } from './BotonesAccion';
+import React from "react";
+import type { ElementoPedido } from "../datos/tipos";
 
-interface PropsSeccionPedido {
-  pedido: TipoElementoPedido[];
-  alActualizarCantidad: (nombre: string, cantidad: number) => void;
+interface Props {
+  pedido: ElementoPedido[];
+  alActualizarCantidad: (id: number, cantidad: number) => void;
   alLimpiarPedido: () => void;
 }
 
-export const SeccionPedido: React.FC<PropsSeccionPedido> = ({
+export const SeccionPedido: React.FC<Props> = ({
   pedido,
   alActualizarCantidad,
   alLimpiarPedido
 }) => {
-  const calcularSubtotal = (): number => {
-    return pedido.reduce((total, elemento) => 
-      total + (elemento.precio * elemento.cantidad), 0
-    );
-  };
 
-  const calcularImpuesto = (): number => {
-    return calcularSubtotal() * 0.07;
-  };
+  const subtotal = pedido.reduce(
+    (acc, item) => acc + item.precio * item.cantidad,
+    0
+  );
 
-  const calcularTotal = (): number => {
-    return calcularSubtotal() + calcularImpuesto();
-  };
+  const impuesto = subtotal * 0.07;
+  const total = subtotal + impuesto;
 
-  const manejarAceptar = () => {
-    alert('Pedido aceptado!');
-  };
+  const manejarAceptar = async () => {
+    if (pedido.length === 0) {
+      alert("No hay productos en el pedido");
+      return;
+    }
 
-  const manejarSalir = () => {
-    if (window.confirm('¿Seguro que deseas salir?')) {
-      window.close();
+    const payload = {
+      turnoId: 1,
+      items: pedido.map(p => ({
+        productoId: p.id,
+        cantidad: p.cantidad
+      }))
+    };
+
+    try {
+      const res = await fetch("http://localhost:8080/api/pedido/frontend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error("Error al crear el pedido");
+
+      const data = await res.json();
+      alert(`Pedido creado correctamente. Total: ${data.total.toFixed(2)}€`);
+      alLimpiarPedido();
+
+    } catch (error) {
+      console.error(error);
+      alert("Hubo un error al enviar el pedido");
     }
   };
 
-  const subtotal = calcularSubtotal();
-  const impuesto = calcularImpuesto();
-  const total = calcularTotal();
-
   return (
-    <div className="seccion-pedido">
+    <section className="seccion-pedido">
       <h2>Pedido Actual</h2>
-      
+
       {pedido.length === 0 ? (
         <p className="seccion-pedido__vacio">No hay productos en el pedido</p>
       ) : (
         <>
-          <div className="seccion-pedido__lista">
-            {pedido.map((elemento) => (
-              <ElementoPedido 
-                key={elemento.nombre} 
-                elemento={elemento}
-                alActualizarCantidad={alActualizarCantidad}
-              />
+          <ul className="seccion-pedido__lista">
+            {pedido.map(item => (
+              <li key={item.id} className="elemento-pedido">
+                <div className="elemento-pedido__info">
+                  <span className="elemento-pedido__nombre">{item.nombre}</span>
+                  <span className="elemento-pedido__precio">{item.precio.toFixed(2)}€</span>
+                </div>
+
+                <div className="elemento-pedido__controles">
+                  <button onClick={() => alActualizarCantidad(item.id, item.cantidad - 1)}>-</button>
+                  <input
+                    type="number"
+                    value={item.cantidad}
+                    onChange={(e) => alActualizarCantidad(item.id, parseInt(e.target.value) || 0)}
+                    min="0"
+                  />
+                  <button onClick={() => alActualizarCantidad(item.id, item.cantidad + 1)}>+</button>
+                </div>
+              </li>
             ))}
+          </ul>
+
+          <div className="totales-pedido">
+            <div className="totales-pedido__fila">
+              <span>Subtotal:</span>
+              <span>{subtotal.toFixed(2)}€</span>
+            </div>
+
+            <div className="totales-pedido__fila">
+              <span>Impuesto (7% IGIC):</span>
+              <span>{impuesto.toFixed(2)}€</span>
+            </div>
+
+            <div className="totales-pedido__fila totales-pedido__fila--final">
+              <span>Total:</span>
+              <span>{total.toFixed(2)}€</span>
+            </div>
           </div>
 
-          <TotalesPedido 
-            subtotal={subtotal}
-            impuesto={impuesto}
-            total={total}
-          />
-
-          <BotonesAccion 
-            alAceptar={manejarAceptar}
-            alLimpiar={alLimpiarPedido}
-            alSalir={manejarSalir}
-          />
+          <div className="botones-accion">
+            <button className="botones-accion__aceptar" onClick={manejarAceptar}>Aceptar</button>
+            <button className="botones-accion__limpiar" onClick={alLimpiarPedido}>Limpiar</button>
+            <button className="botones-accion__salir">Salir</button>
+          </div>
         </>
       )}
-    </div>
+    </section>
   );
 };

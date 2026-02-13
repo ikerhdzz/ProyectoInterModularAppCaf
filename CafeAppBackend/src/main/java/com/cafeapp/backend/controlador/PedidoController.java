@@ -1,8 +1,9 @@
 package com.cafeapp.backend.controlador;
 
 import com.cafeapp.backend.dto.DetallePedidoResponse;
+import com.cafeapp.backend.dto.PedidoFrontendRequest;
 import com.cafeapp.backend.dto.PedidoResponse;
-import com.cafeapp.backend.modelo.DetallePedido;
+import com.cafeapp.backend.dto.PedidoTotales;
 import com.cafeapp.backend.modelo.Pedido;
 import com.cafeapp.backend.modelo.Ticket;
 import com.cafeapp.backend.repositorio.DetallePedidoRepository;
@@ -51,9 +52,9 @@ public class PedidoController {
 
         List<DetallePedidoResponse> detalles = pedidoService.obtenerDetallesPedido(pedidoId);
 
-        double total = pedidoService.calcularTotalPedido(pedidoId);
+        PedidoTotales totales = pedidoService.calcularTotalesPedido(pedidoId);
 
-        PedidoResponse response = new PedidoResponse(pedido, detalles, total);
+        PedidoResponse response = new PedidoResponse(pedido, detalles, totales);
 
         return ResponseEntity.ok(response);
     }
@@ -75,11 +76,24 @@ public class PedidoController {
             @PathVariable Long detalleId,
             @RequestBody List<Long> extrasIds) {
 
-        DetallePedido detalle = detallePedidoRepository.findById(detalleId)
+        var detalle = detallePedidoRepository.findById(detalleId)
                 .orElseThrow(() -> new RuntimeException("Detalle no encontrado"));
 
         pedidoService.agregarExtras(detalle, extrasIds);
 
         return ResponseEntity.ok("Extras agregados");
+    }
+
+    //  NUEVO ENDPOINT PARA PEDIDOS DESDE EL FRONTEND
+    @PostMapping("/frontend")
+    public ResponseEntity<PedidoResponse> crearPedidoFrontend(
+            @RequestBody PedidoFrontendRequest request) {
+
+        Pedido pedido = pedidoService.crearPedidoDesdeFrontend(request);
+
+        List<DetallePedidoResponse> detalles = pedidoService.obtenerDetallesPedido(pedido.getId());
+        PedidoTotales totales = pedidoService.calcularTotalesPedido(pedido.getId());
+
+        return ResponseEntity.ok(new PedidoResponse(pedido, detalles, totales));
     }
 }
