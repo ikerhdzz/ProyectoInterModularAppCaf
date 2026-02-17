@@ -3,8 +3,9 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import type { ElementoPedido } from '../datos/tipos';
 
-// PON AQUÍ TU CLAVE PÚBLICA (pk_test_...)
-const stripePromise = loadStripe("pk_test_XXXXXXXXXXXXXXXXXXXXXXXX");
+// Usar clave pública desde .env (VITE_STRIPE_PK)
+const stripePk = (import.meta as any).env?.VITE_STRIPE_PK;
+const stripePromise = stripePk ? loadStripe(stripePk) : null;
 
 interface Props {
   pedido: ElementoPedido[];
@@ -67,20 +68,50 @@ export const PantallaPago: React.FC<Props> = ({ pedido, total, alSalir, alConfir
 
   // Al entrar, pedimos al backend que prepare el cobro
   useEffect(() => {
-    fetch("http://localhost:8080/api/pagos/crear-intento", {
+    const base = (import.meta as any).env?.VITE_API_BASE || '';
+    fetch(base + "/api/pagos/crear-intento", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ total: total }) // Enviamos el total
+      body: JSON.stringify({ items: pedido.map(i => ({ id: i.id, cantidad: i.cantidad })) })
     })
       .then((res) => res.json())
       .then((data) => setClientSecret(data.clientSecret))
       .catch((err) => console.error("Error iniciando pago:", err));
-  }, [total]);
+  }, [total, pedido]);
 
   const opciones = {
     clientSecret,
     appearance: { theme: 'stripe' as const }, // Tema visual
   };
+
+  if (!stripePk) {
+    return (
+      <div className="aplicacion">
+        <header className="encabezado"><h1>Pago Seguro</h1></header>
+        <div className="aplicacion__contenedor contenedor-pago">
+          <div className="seccion-resumen">
+            <h2>Resumen</h2>
+            <div className="lista-resumen">
+              {pedido.map((item, i) => (
+                <div key={i} className="item-resumen">
+                  <span>{item.cantidad}x {item.nombre}</span>
+                  <span>{(item.precio * item.cantidad).toFixed(2)}€</span>
+                </div>
+              ))}
+            </div>
+            <div className="total-final">
+              <span>Total a pagar:</span>
+              <span>{total.toFixed(2)}€</span>
+            </div>
+            <button className="boton-volver" onClick={alSalir}>Cancelar</button>
+          </div>
+          <div className="seccion-pago">
+            <p style={{color: 'red'}}>La clave pública de Stripe no está configurada. Defina `VITE_STRIPE_PK` en .env.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="aplicacion">
@@ -94,6 +125,7 @@ export const PantallaPago: React.FC<Props> = ({ pedido, total, alSalir, alConfir
           <div className="lista-resumen">
             {pedido.map((item, i) => (
               <div key={i} className="item-resumen">
+                <img src={item.imagen ?? '/img/imagenNoDisponible.jpg'} alt={item.nombre} className="mini-imagen" style={{marginRight:8}} />
                 <span>{item.cantidad}x {item.nombre}</span>
                 <span>{(item.precio * item.cantidad).toFixed(2)}€</span>
               </div>

@@ -16,8 +16,12 @@ export const TarjetaMenu: React.FC<PropsTarjetaMenu> = ({
 
   return (
     <div className="tarjeta-menu" onClick={manejarClick}>
-      <span className="tarjeta-menu__nombre">{elemento.nombre}</span>
-      <span className="tarjeta-menu__precio">{elemento.precio.toFixed(2)}€</span>
+      <img src={elemento.imagen ?? '/img/imagenNoDisponible.jpg'} alt={elemento.nombre} className="tarjeta-menu__imagen" />
+      <div className="tarjeta-menu__texto">
+        <span className="tarjeta-menu__nombre">{elemento.nombre}</span>
+        {elemento.categoriaNombre && <small style={{opacity:0.9}}>{elemento.categoriaNombre}</small>}
+        <span className="tarjeta-menu__precio">{elemento.precio.toFixed(2)}€</span>
+      </div>
     </div>
   );
 };

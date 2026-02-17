@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { SeccionMenu } from '../componentes/SeccionMenu';
 import { SeccionPedido } from '../componentes/SeccionPedido';
 import type { ElementoMenu, ElementoPedido } from '../datos/tipos';
-import { datosMenu } from '../datos/datosMenu';
+import { datosMenu, obtenerDatosMenu } from '../datos/datosMenu';
 import '../App.css';
 
 interface Props {
@@ -25,6 +25,14 @@ export const PantallaPedido: React.FC<Props> = ({
   irAStock
 }) => {
 
+  const [menu, setMenu] = useState<ElementoMenu[]>(datosMenu);
+
+  useEffect(() => {
+    let mounted = true;
+    obtenerDatosMenu('').then(list => { if (mounted) setMenu(list); });
+    return () => { mounted = false; };
+  }, []);
+
   return (
     <div className="aplicacion">
       <header className="encabezado" onClick={irAStock} style={{cursor: 'pointer'}} title="Click para ir a Stock (truco)">
@@ -33,7 +41,7 @@ export const PantallaPedido: React.FC<Props> = ({
 
       <div className="aplicacion__contenedor">
         <SeccionMenu
-          elementosMenu={datosMenu}
+          elementosMenu={menu}
           alAgregarAlPedido={alAgregar}
         />
 

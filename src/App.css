@@ -7,6 +7,17 @@
   box-sizing: border-box;
 }
 
+/* Garantizar que el body siempre muestre el gradiente y ocupe la altura */
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 .aplicacion {
   min-height: 100vh;
   font-family: Arial, sans-serif;
@@ -51,6 +62,7 @@
   padding: 25px;
   border-radius: 15px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  margin-bottom: 40px;
 }
 
 .seccion-menu h2 {
@@ -92,6 +104,38 @@
   font-weight: bold;
 }
 
+/* IMÁGENES EN TARJETA */
+.tarjeta-menu__imagen {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
+  align-self: start;
+}
+
+.tarjeta-menu__texto {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* IMAGENES PEQUEÑAS */
+.mini-imagen {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 6px;
+  vertical-align: middle;
+}
+
+.elemento-pedido__imagen {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
 /* ==========================================
    3. SECCIÓN PEDIDO (SIN CAMBIOS)
    ========================================== */
@@ -100,6 +144,7 @@
   padding: 25px;
   border-radius: 15px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  margin-bottom: 40px;
 }
 
 .seccion-pedido h2 {
@@ -228,6 +273,7 @@
   gap: 40px;
   max-width: 1100px;
   margin: auto;
+  margin-top: 24px; /* separación entre encabezado y tarjetas de pago */
 }
 
 /* TARJETAS */
@@ -300,8 +346,31 @@
 
 .seccion-pago h2 {
   font-size: 24px;
-  margin-bottom: 5px;
+  margin-bottom: 12px; /* un poco más de separación interna */
 }
+
+/* Editor de imagen en la pantalla de stock */
+.imagen-editor {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+.imagen-editor input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 2px solid #e5e7eb;
+  background: #fff;
+}
+.imagen-editor button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+.imagen-editor .btn-save-img { background: linear-gradient(135deg,#3b82f6,#2563eb); color: white; }
+.imagen-editor .btn-remove-img { background: #ef4444; color: white; }
 
 .seccion-pago small {
   color: #888;
@@ -395,6 +464,241 @@
 }
 
 /* ==========================================
+   PANTALLA STOCK – GESTIÓN INVENTARIO
+========================================== */
+/* CONTENEDOR */
+.contenedor-stock {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+}
+
+/* PANEL */
+.panel-stock {
+  width: 100%;
+  max-width: 1100px;
+  padding: 30px 20px;
+  padding-bottom: 80px; /* espacio extra para que las cards no terminen pegadas al borde */
+}
+
+/* GRID DE PRODUCTOS */
+.grid-stock {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+}
+
+/* TARJETA PRODUCTO */
+.fila-stock {
+  background: rgba(255,255,255,0.96);
+  border-radius: 18px;
+  padding: 20px 22px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.08);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.fila-stock:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(0,0,0,.12);
+}
+
+/* OCULTAR CABECERA TABLA */
+.encabezado-fila {
+  display: none;
+}
+
+/* NOMBRE PRODUCTO */
+.celda-nombre strong {
+  font-size: 17px;
+  color: #1f2937;
+}
+
+/* GRUPOS INPUT */
+.celda-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* LABELS VIRTUALES */
+.celda-input::before {
+  content: attr(data-label);
+  min-width: 60px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+/* INPUTS */
+.celda-input input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+  font-size: 15px;
+  transition: .25s;
+  background: #fafafa;
+}
+
+.celda-input input:focus {
+  border-color: #667eea;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(102,126,234,.15);
+}
+
+/* SUFIJO */
+.sufijo {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+/* BOTÓN BORRAR */
+.btn-borrar {
+  align-self: flex-start;
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 9px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.btn-borrar:hover {
+  background: #dc2626;
+  box-shadow: 0 6px 16px rgba(239,68,68,.4);
+}
+
+/* CABECERA STOCK */
+.cabecera-stock {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  gap: 15px;
+}
+
+.cabecera-stock h2 {
+  font-size: 26px;
+  color: #4f46e5;
+}
+
+/* BOTONES CABECERA */
+.acciones-stock button {
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all .25s;
+}
+
+.btn-guardar {
+  background: linear-gradient(135deg,#10b981,#059669);
+  color: white;
+}
+
+.btn-guardar:hover {
+  box-shadow: 0 8px 20px rgba(16,185,129,.45);
+}
+
+.btn-anadir {
+  background: linear-gradient(135deg,#3b82f6,#2563eb);
+  color: white;
+}
+
+.btn-anadir:hover {
+  box-shadow: 0 8px 20px rgba(59,130,246,.45);
+}
+
+.btn-cancelar {
+  background: #ef4444;
+  color: white;
+}
+
+
+/* ==========================================
+   FORMULARIO NUEVO PRODUCTO (ESTILO MODERNO)
+========================================== */
+
+.form-nuevo {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 50px; /* Espacio extra respecto al grid de abajo */
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: slideDown 0.4s ease-out;
+}
+
+/* Animación de entrada */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Filas del formulario */
+.form-nuevo > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-nuevo label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #374151;
+  margin-left: 5px;
+}
+
+/* Estilo de los Inputs (Copiado de la imagen del Barquillo) */
+.form-nuevo input {
+  background: #f8fafc;
+  border: 2px solid #f1f5f9;
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-size: 16px;
+  color: #1e293b;
+  transition: all 0.3s ease;
+}
+
+.form-nuevo input:focus {
+  outline: none;
+  background: white;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+/* Contenedor de botones del formulario */
+.form-nuevo .botones-form {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.form-nuevo .botones-form button {
+  flex: 1;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.form-nuevo .botones-form button:active {
+  transform: scale(0.98);
+}
+
+
+/* ==========================================
    RESPONSIVE
 ========================================== */
 
@@ -408,5 +712,30 @@
 
   .fila-doble {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================
+   RESPONSIVE – STOCK
+========================================== */
+
+@media (max-width: 900px) {
+  .grid-stock {
+    grid-template-columns: 1fr;
+  }
+
+  .cabecera-stock {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .acciones-stock {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+  }
+
+  .acciones-stock button {
+    flex: 1;
   }
 }

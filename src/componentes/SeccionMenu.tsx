@@ -15,9 +15,9 @@ export const SeccionMenu: React.FC<PropsSeccionMenu> = ({
     <div className="seccion-menu">
       <h2>Menú</h2>
       <div className="seccion-menu__cuadricula">
-        {elementosMenu.map((elemento) => (
+        {elementosMenu.map((elemento, idx) => (
           <TarjetaMenu 
-            key={elemento.nombre} 
+            key={elemento.id ?? `${elemento.nombre}-${idx}`} 
             elemento={elemento}
             alAgregarAlPedido={alAgregarAlPedido}
           />
