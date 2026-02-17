@@ -1,5 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import type { ElementoPedido } from '../datos/tipos';
+
+// PON AQUÍ TU CLAVE PÚBLICA (pk_test_...)
+const stripePromise = loadStripe("pk_test_XXXXXXXXXXXXXXXXXXXXXXXX");
 
 interface Props {
   pedido: ElementoPedido[];
@@ -8,71 +13,84 @@ interface Props {
   alConfirmarPago: () => void;
 }
 
-export const PantallaPago: React.FC<Props> = ({ pedido, total, alSalir, alConfirmarPago }) => {
-  const [procesando, setProcesando] = useState(false);
+// COMPONENTE INTERNO DEL FORMULARIO
+const FormularioPago: React.FC<{ total: number, alConfirmarPago: () => void }> = ({ total, alConfirmarPago }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [mensaje, setMensaje] = useState<string | null>(null);
+  const [cargando, setCargando] = useState(false);
 
-  // Estado del formulario de tarjeta
-  const [datosTarjeta, setDatosTarjeta] = useState({
-    titular: '',
-    numero: '',
-    expiracion: '',
-    cvv: ''
-  });
+  const manejarEnvio = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const manejarCambioInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDatosTarjeta({
-      ...datosTarjeta,
-      [e.target.name]: e.target.value
+    if (!stripe || !elements) return; // Stripe aún no ha cargado
+
+    setCargando(true);
+
+    // Stripe confirma el pago directamente con sus servidores
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        // A dónde redirigir si algo sale mal (opcional en SPA)
+        return_url: window.location.origin, 
+      },
+      redirect: 'if_required' // Evita recargar la página si no es necesario (ej: 3D Secure)
     });
+
+    if (error) {
+      setMensaje(error.message || "Error desconocido");
+    } else {
+      // PAGO EXITOSO
+      alConfirmarPago(); // Aquí guardas el pedido en tu BD
+    }
+
+    setCargando(false);
   };
 
-  const manejarPago = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setProcesando(true);
+  return (
+    <form onSubmit={manejarEnvio} className="formulario-stripe">
+      {/* ESTO PINTA EL FORMULARIO DE TARJETA SEGURO AUTOMÁTICAMENTE */}
+      <PaymentElement />
+      
+      <button disabled={!stripe || cargando} id="submit" className="boton-pagar">
+        {cargando ? "Procesando..." : `Pagar ${total.toFixed(2)}€`}
+      </button>
+      
+      {mensaje && <div id="payment-message" style={{color: 'red', marginTop: '10px'}}>{mensaje}</div>}
+    </form>
+  );
+};
 
-    /* AQUÍ ES DONDE CONECTARÍAS EL BACKEND.
-       Si usaras Stripe, aquí llamarías a stripe.confirmCardPayment()
-    */
+// COMPONENTE PRINCIPAL DE LA PANTALLA
+export const PantallaPago: React.FC<Props> = ({ pedido, total, alSalir, alConfirmarPago }) => {
+  const [clientSecret, setClientSecret] = useState("");
 
-    try {
-      // Simulación de conexión con API (backend)
-      console.log("Enviando pago al backend...", { total, ...datosTarjeta });
+  // Al entrar, pedimos al backend que prepare el cobro
+  useEffect(() => {
+    fetch("http://localhost:8080/api/pagos/crear-intento", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ total: total }) // Enviamos el total
+    })
+      .then((res) => res.json())
+      .then((data) => setClientSecret(data.clientSecret))
+      .catch((err) => console.error("Error iniciando pago:", err));
+  }, [total]);
 
-      // Ejemplo de cómo sería la llamada real (comentado):
-      /*
-      const respuesta = await fetch('http://localhost:3000/api/pagar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          items: pedido, 
-          detallesPago: datosTarjeta // ¡OJO! Con Stripe no envías esto, envías un token.
-        })
-      });
-      if (!respuesta.ok) throw new Error('Error en el pago');
-      */
-
-      // Simular espera de 2 segundos
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      alert('¡Pago realizado con éxito!');
-      alConfirmarPago();
-
-    } catch (error) {
-      alert('Hubo un error al procesar el pago.');
-    } finally {
-      setProcesando(false);
-    }
+  const opciones = {
+    clientSecret,
+    appearance: { theme: 'stripe' as const }, // Tema visual
   };
 
   return (
     <div className="aplicacion">
       <header className="encabezado">
-        <h1>Finalizar Pedido</h1>
+        <h1>Pago Seguro</h1>
       </header>
 
       <div className="aplicacion__contenedor contenedor-pago">
         <div className="seccion-resumen">
-          <h2>Tu Pedido</h2>
+          <h2>Resumen</h2>
           <div className="lista-resumen">
             {pedido.map((item, i) => (
               <div key={i} className="item-resumen">
@@ -82,43 +100,20 @@ export const PantallaPago: React.FC<Props> = ({ pedido, total, alSalir, alConfir
             ))}
           </div>
           <div className="total-final">
-            <span>Total:</span>
+            <span>Total a pagar:</span>
             <span>{total.toFixed(2)}€</span>
           </div>
-
-          <button className="boton-volver" onClick={alSalir}>
-            <span></span> Volver al Menú
-          </button>
+          <button className="boton-volver" onClick={alSalir}>Cancelar</button>
         </div>
 
         <div className="seccion-pago">
-          <div className="cabecera-pago">
-            <h2>Datos de Pago</h2>
-            <span>Transacción segura cifrada</span>
-          </div>
-          <form className="formulario-tarjeta" onSubmit={manejarPago}>
-            <div className="grupo-input">
-              <label>Titular</label>
-              <input type="text" name="titular" placeholder="Nombre como aparece en la tarjeta" onChange={manejarCambioInput} required />
-            </div>
-            <div className="grupo-input">
-              <label>Número de Tarjeta</label>
-              <input type="text" name="numero" placeholder="xxxx xxxx xxxx xxxx" maxLength={19} onChange={manejarCambioInput} required />
-            </div>
-            <div className="fila-doble">
-              <div className="grupo-input">
-                <label>Caducidad</label>
-                <input type="text" name="expiracion" placeholder="MM/AA" maxLength={5} onChange={manejarCambioInput} required />
-              </div>
-              <div className="grupo-input">
-                <label>CVV</label>
-                <input type="text" name="cvv" placeholder="000" maxLength={3} onChange={manejarCambioInput} required />
-              </div>
-            </div>
-            <button type="submit" className="boton-pagar" disabled={procesando}>
-              {procesando ? 'Procesando...' : `Confirmar Pago de ${total.toFixed(2)}€`}
-            </button>
-          </form>
+          {clientSecret ? (
+            <Elements options={opciones} stripe={stripePromise}>
+              <FormularioPago total={total} alConfirmarPago={alConfirmarPago} />
+            </Elements>
+          ) : (
+            <p>Cargando pasarela de pago...</p>
+          )}
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 export interface ElementoMenu {
   nombre: string;
   precio: number;
+  id: number;
 }
 
 export interface ElementoPedido extends ElementoMenu {

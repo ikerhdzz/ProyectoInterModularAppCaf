@@ -5,7 +5,6 @@ import type { ElementoMenu, ElementoPedido } from '../datos/tipos';
 import { datosMenu } from '../datos/datosMenu';
 import '../App.css';
 
-// NUEVA INTERFAZ DE PROPS
 interface Props {
   pedido: ElementoPedido[];
   alAgregar: (elemento: ElementoMenu) => void;
@@ -13,7 +12,7 @@ interface Props {
   alLimpiar: () => void;
   alAceptar: () => void;
   manejarSalir: () => void;
-  irAStock: () => void; // Opcional si quieres un botón para ir a stock
+  irAStock: () => void; 
 }
 
 export const PantallaPedido: React.FC<Props> = ({
@@ -25,7 +24,6 @@ export const PantallaPedido: React.FC<Props> = ({
   manejarSalir,
   irAStock
 }) => {
-  // YA NO HAY useState AQUÍ, TODO VIENE DE APP
 
   return (
     <div className="aplicacion">
