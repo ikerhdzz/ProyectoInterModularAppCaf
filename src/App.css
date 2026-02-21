@@ -739,3 +739,207 @@ body {
     flex: 1;
   }
 }
+
+/* ==========================================
+   PANTALLA LOGIN / REGISTRO
+========================================== */
+
+.contenedor-login {
+  max-width: 420px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.form-login {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 35px;
+  border-radius: 20px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: aparecer 0.5s ease;
+}
+
+.form-login h2 {
+  text-align: center;
+  font-size: 26px;
+  color: #4f46e5;
+  margin-bottom: 10px;
+}
+
+.form-login label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  font-size: 14px;
+  color: #374151;
+  gap: 6px;
+}
+
+.form-login input {
+  padding: 14px;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+  background: #fafafa;
+  font-size: 16px;
+  transition: .25s;
+}
+
+.form-login input:focus {
+  border-color: #667eea;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(102,126,234,.15);
+  outline: none;
+}
+
+.form-login button {
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 16px;
+  transition: all .25s;
+}
+
+.form-login button:hover {
+  transform: translateY(-2px);
+}
+
+.form-login button:active {
+  transform: scale(0.98);
+}
+
+.form-login button[type="submit"] {
+  background: linear-gradient(135deg,#5a67ff,#8b5cf6);
+  color: white;
+  box-shadow: 0 10px 25px rgba(90,103,255,.4);
+}
+
+.form-login button[type="submit"]:hover {
+  box-shadow: 0 15px 35px rgba(90,103,255,.55);
+}
+
+.btn-secundario {
+  background: transparent;
+  border: 2px solid #5a67ff;
+  color: #5a67ff;
+}
+
+.btn-secundario:hover {
+  background: #5a67ff;
+  color: white;
+  box-shadow: 0 8px 20px rgba(90,103,255,.4);
+}
+
+.mensaje-error {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  text-align: center;
+  border: 1px solid #fecaca;
+}
+/* ==========================================
+   CUADRÍCULA DE CATEGORÍAS
+========================================== */
+
+.categorias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.categoria-card {
+  background: rgba(255,255,255,0.9);
+  padding: 14px;
+  border-radius: 14px;
+  text-align: center;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .25s;
+  border: 2px solid transparent;
+}
+
+.categoria-card:hover {
+  background: #667eea;
+  color: white;
+}
+
+.cat-activa {
+  background: #667eea !important;
+  color: white !important;
+  border-color: white !important;
+}
+
+/* ==========================================
+   MODO OSCURO
+========================================== */
+
+.dark-mode {
+  background: #0f0f1a;
+  color: #f0f0f0;
+}
+
+/* Fondo general */
+.dark-mode .aplicacion {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+}
+
+/* Header */
+.dark-mode .encabezado {
+  background: rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Tarjetas del menú */
+.dark-mode .tarjeta-menu {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.dark-mode .tarjeta-menu:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+/* Categorías */
+.dark-mode .categoria-card {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #e0e0e0;
+}
+
+.dark-mode .categoria-card:hover {
+  background: #4c4cff;
+  color: white;
+}
+
+.dark-mode .cat-activa {
+  background: #4c4cff !important;
+  color: white !important;
+}
+
+/* Pedido */
+.dark-mode .seccion-pedido {
+  background: rgba(255,255,255,0.08);
+  border-left: 1px solid rgba(255,255,255,0.15);
+}
+
+/* Botón modo oscuro */
+.btn-darkmode {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  margin-left: 15px;
+  transition: 0.3s;
+}
+
+.btn-darkmode:hover {
+  transform: scale(1.2);
+}
+

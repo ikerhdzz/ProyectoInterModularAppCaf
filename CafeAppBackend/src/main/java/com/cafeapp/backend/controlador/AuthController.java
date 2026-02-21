@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "*") // En desarrollo está bien, luego afinamos
 public class AuthController {
 
     private final UsuarioService usuarioService;
@@ -22,6 +23,9 @@ public class AuthController {
         this.jwtUtil = jwtUtil;
     }
 
+    // ============================================================
+    // REGISTRO
+    // ============================================================
     @PostMapping("/registro")
     public ResponseEntity<UsuarioResponse> registrar(@Valid @RequestBody RegistroRequest request) {
 
@@ -32,19 +36,22 @@ public class AuthController {
         usuario.setEmail(request.getEmail());
         usuario.setPassword(request.getPassword());
 
+        // Asignar curso si viene
         if (request.getCursoId() != null) {
             Curso curso = new Curso();
             curso.setId(request.getCursoId());
             usuario.setCurso(curso);
         }
 
+        // Asignar rol
         Rol rol = new Rol();
         rol.setId(request.getRolId());
         usuario.setRol(rol);
 
+        // Guardar usuario
         Usuario guardado = usuarioService.registrar(usuario);
 
-        // Recarga desde la BD para obtener rol y curso completos
+        // Recargar desde BD para obtener curso y rol completos
         Usuario completo = usuarioService.obtenerPorId(guardado.getId());
 
         return ResponseEntity.ok(
@@ -58,10 +65,9 @@ public class AuthController {
         );
     }
 
-
-
-
-
+    // ============================================================
+    // LOGIN
+    // ============================================================
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
 
@@ -71,6 +77,7 @@ public class AuthController {
             return ResponseEntity.status(401).build();
         }
 
+        // Generar token
         String token = jwtUtil.generarToken(usuario.getEmail());
 
         UsuarioResponse usuarioResponse = new UsuarioResponse(
@@ -81,8 +88,6 @@ public class AuthController {
                 usuario.getCurso() != null ? usuario.getCurso().getNombre() : null
         );
 
-
         return ResponseEntity.ok(new LoginResponse(token, usuarioResponse));
     }
-
 }
