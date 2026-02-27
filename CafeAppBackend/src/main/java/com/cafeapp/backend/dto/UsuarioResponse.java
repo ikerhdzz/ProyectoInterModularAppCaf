@@ -1,24 +1,65 @@
 package com.cafeapp.backend.dto;
 
-public class UsuarioResponse {
+import com.cafeapp.backend.modelo.Centro;
+import com.cafeapp.backend.modelo.Rol;
+import com.cafeapp.backend.modelo.Usuario;
 
-    private Long id;
+public class UsuarioResponse {
+    private Integer id;
     private String nombre;
     private String email;
-    private String rol;
-    private String curso;
+    private Rol rol;
+    private Centro centro;
 
-    public UsuarioResponse(Long id, String nombre, String email, String rol, String curso) {
-        this.id = id;
-        this.nombre = nombre;
-        this.email = email;
-        this.rol = rol;
-        this.curso = curso;
+    public UsuarioResponse(Usuario usuario) {
+        this.id = usuario.getId();
+        this.nombre = usuario.getNombre();
+        this.email = usuario.getEmail();
+        this.rol = usuario.getRol();
+        this.centro = usuario.getCentro();
     }
 
-    public Long getId() { return id; }
-    public String getNombre() { return nombre; }
-    public String getEmail() { return email; }
-    public String getRol() { return rol; }
-    public String getCurso() { return curso; }
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Rol getRol() {
+        return rol;
+    }
+
+    public void setRol(Rol rol) {
+        this.rol = rol;
+    }
+
+    public Centro getCentro() {
+        return centro;
+    }
+
+    public void setCentro(Centro centro) {
+        this.centro = centro;
+    }
+
+
+
+
 }

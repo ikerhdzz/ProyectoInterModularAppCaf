@@ -1,7 +1,6 @@
 package com.cafeapp.backend.modelo;
 
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,19 +10,15 @@ public class Carrito {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_carrito")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "id_usuario")
+    @OneToOne
+    @JoinColumn(name = "id_usuario", nullable = false, unique = true)
     private Usuario usuario;
-    @OneToMany
-    @JoinTable(
-            name = "carritos_items",
-            joinColumns = @JoinColumn(name = "carrito_id"),
-            inverseJoinColumns = @JoinColumn(name = "items_id")
-    )
-    private List<ItemCarrito> items = new ArrayList<>();
 
+    @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemCarrito> items = new ArrayList<>();
 
     public Carrito() {}
 
@@ -34,5 +29,6 @@ public class Carrito {
     public Long getId() { return id; }
     public Usuario getUsuario() { return usuario; }
     public List<ItemCarrito> getItems() { return items; }
-}
 
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+}

@@ -2,98 +2,87 @@ package com.cafeapp.backend.controlador;
 
 import com.cafeapp.backend.dto.DetallePedidoResponse;
 import com.cafeapp.backend.dto.PedidoFrontendRequest;
-import com.cafeapp.backend.dto.PedidoResponse;
 import com.cafeapp.backend.dto.PedidoTotales;
 import com.cafeapp.backend.modelo.Pedido;
-import com.cafeapp.backend.modelo.Ticket;
-import com.cafeapp.backend.repositorio.DetallePedidoRepository;
 import com.cafeapp.backend.servicio.PedidoService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/pedido")
+@RequestMapping("/api/pedidos")
 public class PedidoController {
 
     private final PedidoService pedidoService;
-    private final DetallePedidoRepository detallePedidoRepository;
 
-    public PedidoController(PedidoService pedidoService,
-                            DetallePedidoRepository detallePedidoRepository) {
+    public PedidoController(PedidoService pedidoService) {
         this.pedidoService = pedidoService;
-        this.detallePedidoRepository = detallePedidoRepository;
     }
 
-    @PostMapping("/crear")
-    public ResponseEntity<Pedido> crearPedido(@RequestParam Integer turnoId) {
-        return ResponseEntity.ok(pedidoService.crearPedidoDesdeCarrito(turnoId));
+    // ============================================================
+    // CREAR PEDIDO DESDE CARRITO
+    // ============================================================
+    @PostMapping("/carrito")
+    public Pedido crearPedidoDesdeCarrito(@RequestParam Integer turnoId) {
+        return pedidoService.crearPedidoDesdeCarrito(turnoId);
     }
 
-    @GetMapping
-    public ResponseEntity<List<Pedido>> listarPedidos() {
-        return ResponseEntity.ok(pedidoService.listarPedidosUsuario());
-    }
-
-    @GetMapping("/{pedidoId}/detalles")
-    public ResponseEntity<List<DetallePedidoResponse>> detalles(@PathVariable Long pedidoId) {
-        return ResponseEntity.ok(pedidoService.obtenerDetallesPedido(pedidoId));
-    }
-
-    @GetMapping("/{pedidoId}")
-    public ResponseEntity<PedidoResponse> obtenerPedidoCompleto(@PathVariable Long pedidoId) {
-
-        Pedido pedido = pedidoService.listarPedidosUsuario()
-                .stream()
-                .filter(p -> p.getId().equals(pedidoId))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
-
-        List<DetallePedidoResponse> detalles = pedidoService.obtenerDetallesPedido(pedidoId);
-
-        PedidoTotales totales = pedidoService.calcularTotalesPedido(pedidoId);
-
-        PedidoResponse response = new PedidoResponse(pedido, detalles, totales);
-
-        return ResponseEntity.ok(response);
-    }
-
-    @PutMapping("/{pedidoId}/estado")
-    public ResponseEntity<Pedido> cambiarEstado(
-            @PathVariable Long pedidoId,
-            @RequestParam String estado) {
-        return ResponseEntity.ok(pedidoService.cambiarEstado(pedidoId, estado));
-    }
-
-    @PostMapping("/{pedidoId}/ticket")
-    public ResponseEntity<Ticket> generarTicket(@PathVariable Long pedidoId) {
-        return ResponseEntity.ok(pedidoService.generarTicket(pedidoId));
-    }
-
-    @PostMapping("/{detalleId}/extras")
-    public ResponseEntity<?> agregarExtras(
-            @PathVariable Long detalleId,
-            @RequestBody List<Long> extrasIds) {
-
-        var detalle = detallePedidoRepository.findById(detalleId)
-                .orElseThrow(() -> new RuntimeException("Detalle no encontrado"));
-
-        pedidoService.agregarExtras(detalle, extrasIds);
-
-        return ResponseEntity.ok("Extras agregados");
-    }
-
-    //  NUEVO ENDPOINT PARA PEDIDOS DESDE EL FRONTEND
+    // ============================================================
+    // CREAR PEDIDO DESDE FRONTEND DIRECTO
+    // ============================================================
     @PostMapping("/frontend")
-    public ResponseEntity<PedidoResponse> crearPedidoFrontend(
-            @RequestBody PedidoFrontendRequest request) {
+    public Pedido crearPedidoDesdeFrontend(@RequestBody PedidoFrontendRequest request) {
+        return pedidoService.crearPedidoDesdeFrontend(request);
+    }
 
-        Pedido pedido = pedidoService.crearPedidoDesdeFrontend(request);
+    // ============================================================
+    // LISTAR PEDIDOS DEL USUARIO
+    // ============================================================
+    @GetMapping("/usuario")
+    public List<Pedido> listarPedidosUsuario() {
+        return pedidoService.listarPedidosUsuario();
+    }
 
-        List<DetallePedidoResponse> detalles = pedidoService.obtenerDetallesPedido(pedido.getId());
-        PedidoTotales totales = pedidoService.calcularTotalesPedido(pedido.getId());
+    // ============================================================
+    // DETALLES DE UN PEDIDO
+    // ============================================================
+    @GetMapping("/{pedidoId}/detalles")
+    public List<DetallePedidoResponse> obtenerDetalles(@PathVariable Long pedidoId) {
+        return pedidoService.obtenerDetallesPedido(pedidoId);
+    }
 
-        return ResponseEntity.ok(new PedidoResponse(pedido, detalles, totales));
+    // ============================================================
+    // CAMBIAR ESTADO
+    // ============================================================
+    @PutMapping("/{pedidoId}/estado")
+    public Pedido cambiarEstado(
+            @PathVariable Long pedidoId,
+            @RequestParam String estado
+    ) {
+        return pedidoService.cambiarEstado(pedidoId, estado);
+    }
+
+    // ============================================================
+    // GENERAR TICKET
+    // ============================================================
+    @PostMapping("/{pedidoId}/ticket")
+    public void generarTicket(@PathVariable Long pedidoId) {
+        pedidoService.generarTicket(pedidoId);
+    }
+
+    // ============================================================
+    // TOTALES
+    // ============================================================
+    @GetMapping("/{pedidoId}/totales")
+    public PedidoTotales calcularTotales(@PathVariable Long pedidoId) {
+        return pedidoService.calcularTotalesPedido(pedidoId);
+    }
+
+    // ============================================================
+    // LISTAR PEDIDOS POR CENTRO
+    // ============================================================
+    @GetMapping("/centro/{centroId}")
+    public List<Pedido> listarPedidosPorCentro(@PathVariable Integer centroId) {
+        return pedidoService.listarPedidosPorCentro(centroId);
     }
 }

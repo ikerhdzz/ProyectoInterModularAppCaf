@@ -1,9 +1,7 @@
 package com.cafeapp.backend.controlador;
 
-import com.cafeapp.backend.dto.CarritoRequest;
 import com.cafeapp.backend.dto.CarritoResponse;
 import com.cafeapp.backend.servicio.CarritoService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,42 +14,71 @@ public class CarritoController {
         this.carritoService = carritoService;
     }
 
-    @PostMapping("/agregar")
-    public ResponseEntity<?> agregar(@RequestBody CarritoRequest req) {
-
-        carritoService.agregarProducto(
-                req.getUsuarioId(),
-                req.getProductoId(),
-                req.getCantidad()
-        );
-
-        return ResponseEntity.ok("Producto agregado al carrito");
-    }
-
-
+    // ============================================================
+    // OBTENER CARRITO DEL USUARIO
+    // ============================================================
     @GetMapping
-    public ResponseEntity<CarritoResponse> obtenerCarrito() {
-        return ResponseEntity.ok(carritoService.obtenerCarritoUsuario());
+    public CarritoResponse obtenerCarrito() {
+        return carritoService.obtenerCarritoUsuario();
     }
 
-    @PutMapping("/actualizar")
-    public ResponseEntity<?> actualizarCantidad(
+    // ============================================================
+    // AGREGAR PRODUCTO
+    // ============================================================
+    @PostMapping("/agregar")
+    public void agregarProducto(
             @RequestParam Long productoId,
-            @RequestParam int cantidad) {
+            @RequestParam int cantidad
+    ) {
+        carritoService.agregarProducto(productoId, cantidad);
+    }
 
+    // ============================================================
+    // ACTUALIZAR CANTIDAD
+    // ============================================================
+    @PutMapping("/cantidad")
+    public void actualizarCantidad(
+            @RequestParam Long productoId,
+            @RequestParam int cantidad
+    ) {
         carritoService.actualizarCantidad(productoId, cantidad);
-        return ResponseEntity.ok("Cantidad actualizada");
     }
 
+    // ============================================================
+    // ELIMINAR PRODUCTO
+    // ============================================================
     @DeleteMapping("/eliminar")
-    public ResponseEntity<?> eliminarProducto(@RequestParam Long productoId) {
+    public void eliminarProducto(@RequestParam Long productoId) {
         carritoService.eliminarProducto(productoId);
-        return ResponseEntity.ok("Producto eliminado");
     }
 
+    // ============================================================
+    // VACIAR CARRITO
+    // ============================================================
     @DeleteMapping("/vaciar")
-    public ResponseEntity<?> vaciarCarrito() {
+    public void vaciarCarrito() {
         carritoService.vaciarCarrito();
-        return ResponseEntity.ok("Carrito vaciado");
+    }
+
+    // ============================================================
+    // AGREGAR EXTRA A ITEM
+    // ============================================================
+    @PostMapping("/extra/agregar")
+    public void agregarExtra(
+            @RequestParam Integer itemId,
+            @RequestParam Long extraId
+    ) {
+        carritoService.agregarExtraItem(itemId, extraId);
+    }
+
+    // ============================================================
+    // QUITAR EXTRA DE ITEM
+    // ============================================================
+    @DeleteMapping("/extra/quitar")
+    public void quitarExtra(
+            @RequestParam Long itemId,
+            @RequestParam Long extraId
+    ) {
+        carritoService.quitarExtraItem(itemId, extraId);
     }
 }

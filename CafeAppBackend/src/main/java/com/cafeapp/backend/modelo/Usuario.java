@@ -3,6 +3,8 @@ package com.cafeapp.backend.modelo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "usuario")
@@ -11,7 +13,7 @@ public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_usuario")
-    private Long id;
+    private Integer id;
 
     @NotBlank
     private String dni;
@@ -40,8 +42,20 @@ public class Usuario {
     @JoinColumn(name = "rol_id", nullable = false)
     private Rol rol;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    @ManyToOne
+    @JoinColumn(name = "centro_id")
+    private Centro centro;
+
+    @ManyToMany
+    @JoinTable(
+            name = "usuario_alergeno",
+            joinColumns = @JoinColumn(name = "id_usuario"),
+            inverseJoinColumns = @JoinColumn(name = "id_alergeno")
+    )
+    private List<Alergeno> alergenos = new ArrayList<>();
+
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
     public String getDni() { return dni; }
     public void setDni(String dni) { this.dni = dni; }
@@ -66,4 +80,10 @@ public class Usuario {
 
     public Rol getRol() { return rol; }
     public void setRol(Rol rol) { this.rol = rol; }
+
+    public Centro getCentro() { return centro; }
+    public void setCentro(Centro centro) { this.centro = centro; }
+
+    public List<Alergeno> getAlergenos() { return alergenos; }
+    public void setAlergenos(List<Alergeno> alergenos) { this.alergenos = alergenos; }
 }

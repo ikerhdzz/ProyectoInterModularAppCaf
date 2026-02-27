@@ -6,33 +6,28 @@ import jakarta.persistence.*;
 @Table(name = "detalle_extra")
 public class DetalleExtra {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_detalle_extra")
-    private Long id;
+    @EmbeddedId
+    private DetalleExtraId id;
 
-    @Column(name = "id_detalle")
-    private Long idDetalle;
+    @ManyToOne
+    @MapsId("detalleId")
+    @JoinColumn(name = "id_detalle")
+    private DetallePedido detalle;
 
-    @Column(name = "id_extra")
-    private Long idExtra;
+    @ManyToOne
+    @MapsId("extraId")
+    @JoinColumn(name = "id_extra")
+    private ExtraProducto extra;
 
     public DetalleExtra() {}
 
-    public DetalleExtra(Long idDetalle, Long idExtra) {
-        this.idDetalle = idDetalle;
-        this.idExtra = idExtra;
+    public DetalleExtra(DetallePedido detalle, ExtraProducto extra) {
+        this.detalle = detalle;
+        this.extra = extra;
+        this.id = new DetalleExtraId(detalle.getId(), extra.getId());
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public Long getIdDetalle() {
-        return idDetalle;
-    }
-
-    public Long getIdExtra() {
-        return idExtra;
-    }
+    public DetalleExtraId getId() { return id; }
+    public DetallePedido getDetalle() { return detalle; }
+    public ExtraProducto getExtra() { return extra; }
 }

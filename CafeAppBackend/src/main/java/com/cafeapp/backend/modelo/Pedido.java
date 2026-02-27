@@ -16,27 +16,58 @@ public class Pedido {
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    private String estado;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EstadoPedido estado;
 
-    @Column(name = "fecha")
+    @Column(name = "fecha", nullable = false)
     private LocalDateTime fecha;
 
-    @Column(name = "turno_id")
-    private Integer turnoId;
+    @ManyToOne
+    @JoinColumn(name = "turno_id")
+    private Turno turno;
 
-    public Pedido() {}
+    @ManyToOne
+    @JoinColumn(name = "centro_id")
+    private Centro centro;
 
-    public Pedido(Usuario usuario, String estado, Integer turnoId) {
-        this.usuario = usuario;
-        this.estado = estado;
-        this.turnoId = turnoId;
+    public Pedido() {
+        this.estado = EstadoPedido.PENDIENTE;
         this.fecha = LocalDateTime.now();
     }
 
+    // ============================
+    // GETTERS
+    // ============================
+
     public Long getId() { return id; }
     public Usuario getUsuario() { return usuario; }
-    public String getEstado() { return estado; }
-    public void setEstado(String estado) { this.estado = estado; }
+    public EstadoPedido getEstado() { return estado; }
     public LocalDateTime getFecha() { return fecha; }
-    public Integer getTurnoId() { return turnoId; }
+    public Turno getTurno() { return turno; }
+    public Centro getCentro() { return centro; }
+
+    // ============================
+    // SETTERS (NUEVOS)
+    // ============================
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public void setEstado(EstadoPedido estado) {
+        this.estado = estado;
+    }
+
+    public void setFecha(LocalDateTime fecha) {
+        this.fecha = fecha;
+    }
+
+    public void setTurno(Turno turno) {
+        this.turno = turno;
+    }
+
+    public void setCentro(Centro centro) {
+        this.centro = centro;
+    }
 }

@@ -5,23 +5,22 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "categoria")
 public class Categoria {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_categoria")
-    private Long id;
+    private Integer id;
 
     private String nombre;
 
     @Column(name = "icono_url")
     private String iconoUrl;
 
-    // getters y setters
-
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -40,7 +39,4 @@ public class Categoria {
     public void setIconoUrl(String iconoUrl) {
         this.iconoUrl = iconoUrl;
     }
-
-
 }
-

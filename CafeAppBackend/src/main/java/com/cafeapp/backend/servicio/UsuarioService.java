@@ -2,52 +2,72 @@ package com.cafeapp.backend.servicio;
 
 import com.cafeapp.backend.modelo.Usuario;
 import com.cafeapp.backend.repositorio.UsuarioRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UsuarioService {
 
-    private final UsuarioRepository usuarioRepository;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
-    public UsuarioService(UsuarioRepository usuarioRepository) {
-        this.usuarioRepository = usuarioRepository;
+    // ============================================================
+    // OBTENER POR EMAIL (NECESARIO PARA LOGIN)
+    // ============================================================
+    public Usuario obtenerPorEmail(String email) {
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con email: " + email));
     }
 
-    public Usuario registrar(Usuario usuario) {
-        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+    // ============================================================
+    // GUARDAR
+    // ============================================================
+    public Usuario guardar(Usuario usuario) {
         return usuarioRepository.save(usuario);
     }
 
-    public Usuario login(String email, String password) {
-        return usuarioRepository.findByEmail(email)
-                .filter(u -> passwordEncoder.matches(password, u.getPassword()))
+    // ============================================================
+    // OBTENER POR ID
+    // ============================================================
+    public Usuario obtenerPorId(Integer id) {
+        return usuarioRepository.findById(id)
                 .orElse(null);
     }
 
-
-    public Usuario obtenerPorId(Long id) {
-        return usuarioRepository.findById(id).orElse(null);
+    // ============================================================
+    // ACTUALIZAR
+    // ============================================================
+    public Usuario actualizar(Integer id, Usuario datos) {
+        return usuarioRepository.findById(id)
+                .map(u -> {
+                    u.setNombre(datos.getNombre());
+                    u.setEmail(datos.getEmail());
+                    u.setPassword(datos.getPassword());
+                    u.setRol(datos.getRol());
+                    u.setCentro(datos.getCentro());
+                    return usuarioRepository.save(u);
+                })
+                .orElse(null);
     }
 
-    public Usuario actualizar(Long id, Usuario datos) {
-        return usuarioRepository.findById(id).map(u -> {
-            u.setNombre(datos.getNombre());
-            u.setEmail(datos.getEmail());
-            if (datos.getPassword() != null && !datos.getPassword().isEmpty()) {
-                u.setPassword(passwordEncoder.encode(datos.getPassword()));
-            }
-            return usuarioRepository.save(u);
-        }).orElse(null);
+    // ============================================================
+    // ELIMINAR
+    // ============================================================
+    public boolean eliminar(Integer id) {
+        return usuarioRepository.findById(id)
+                .map(u -> {
+                    usuarioRepository.delete(u);
+                    return true;
+                })
+                .orElse(false);
     }
 
-    public boolean eliminar(Long id) {
-        return usuarioRepository.findById(id).map(u -> {
-            usuarioRepository.delete(u);
-            return true;
-        }).orElse(false);
+    // ============================================================
+    // LISTAR
+    // ============================================================
+    public List<Usuario> listar() {
+        return usuarioRepository.findAll();
     }
 }
-
-

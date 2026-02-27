@@ -19,4 +19,3 @@ public class CategoriaService {
         return repo.findAll();
     }
 }
-

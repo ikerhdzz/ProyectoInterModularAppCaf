@@ -2,9 +2,7 @@ package com.cafeapp.backend.controlador;
 
 import com.cafeapp.backend.modelo.Categoria;
 import com.cafeapp.backend.servicio.CategoriaService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,4 +21,3 @@ public class CategoriaController {
         return service.listar();
     }
 }
-
