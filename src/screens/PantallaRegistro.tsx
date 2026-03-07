@@ -19,6 +19,7 @@ export const PantallaRegistro: React.FC<Props> = ({ alRegistroExitoso, irALogin 
     e.preventDefault();
     setError(null);
     setCargando(true);
+
     try {
       await registrar({
         dni,
@@ -26,8 +27,9 @@ export const PantallaRegistro: React.FC<Props> = ({ alRegistroExitoso, irALogin 
         nombre,
         email,
         password,
-        rolId: 1, // por ahora, rol alumno/usuario normal
+        rolId: 3, // TODOS los que se registran son CLIENTES
       });
+
       alRegistroExitoso();
     } catch (err) {
       setError('No se pudo completar el registro');

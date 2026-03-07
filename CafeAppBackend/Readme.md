@@ -1,26 +1,40 @@
-☕ CaféApp Backend – Documentación Técnica
-Backend desarrollado en Spring Boot 3, con arquitectura modular orientada a servicios, validación, seguridad JWT y gestión de stock por centro.
+CaféApp Backend – Documentación Técnica (Versión Final)
+Backend desarrollado en Spring Boot 3, con arquitectura modular, seguridad JWT, gestión de stock por centro, sistema de pedidos, integración con Stripe y soporte para carrito de compras.
+
+Este documento sirve como guía técnica para el equipo y como base para futuras decisiones sobre la evolución del proyecto.
 
 🧱 Arquitectura del Proyecto
 Código
 src/main/java/com/cafeapp/backend
 │
 ├── controlador/        → Controladores REST (API pública)
-├── dto/                → Objetos de transferencia de datos
-├── excepciones/        → Manejo centralizado de errores
+├── dto/                → Objetos de transferencia de datos (Request/Response)
+├── excepciones/        → Manejo centralizado de errores (GlobalExceptionHandler)
 ├── modelo/             → Entidades JPA (mapeo BD)
 ├── repositorio/        → Repositorios Spring Data JPA
 ├── seguridad/          → JWT, filtros, autenticación
 └── servicio/           → Lógica de negocio
+La arquitectura sigue un patrón en capas, con responsabilidades bien separadas:
+
+Controladores → Exponen la API
+
+Servicios → Contienen la lógica de negocio
+
+Repositorios → Acceso a datos
+
+DTOs → Aíslan la API del modelo interno
+
+Excepciones → Manejo uniforme de errores
+
 🗄️ Base de Datos
-El backend está alineado con la BD real:
+El backend está alineado con la estructura real de la BD:
 
-IDs de entidades principales (Producto, ExtraProducto, Pedido, etc.) → Long
+✔ Tipos de ID
+Entidades principales → Long
 
-IDs de entidades internas (ItemCarrito, StockCentro, etc.) → Integer
+Entidades internas → Integer
 
-Relaciones:
-
+✔ Relaciones clave
 Centro 1–N Usuario
 
 Centro 1–N StockCentro
@@ -35,266 +49,50 @@ Pedido 1–N DetallePedido
 
 DetallePedido 1–N DetalleExtra
 
-Todo el backend ha sido saneado para respetar estos tipos.
+Toda la lógica del backend ha sido revisada para respetar estos tipos y relaciones.
 
 🔐 Seguridad
-Autenticación mediante JWT
+Sistema de autenticación basado en JWT:
 
-Login por email + password
+Login por email + contraseña
 
-Cada usuario pertenece a un Centro
+Generación de token JWT
 
-El stock y los pedidos se gestionan por centro
+Validación automática mediante filtro
+
+Acceso a usuario autenticado vía SecurityContextHolder
+
+Cada usuario pertenece a un Centro, lo que afecta:
+
+Stock disponible
+
+Pedidos visibles
+
+Gestión interna
 
 🛒 Carrito (opcional según decisión del equipo)
-El backend incluye un sistema de carrito totalmente funcional, pero su uso final depende del equipo.
+El backend incluye un sistema de carrito completo y funcional, pero su uso final depende del equipo.
 
-Características:
-
+Funcionalidades:
 Un carrito por usuario
 
 Items con cantidad
 
-Extras por item
+Extras por ítem
 
 Validación de stock antes de agregar o actualizar
 
 Conversión del carrito → pedido
 
-Si el equipo decide eliminarlo, está aislado en:
-
-Código
-CarritoService
-CarritoController
-ItemCarrito / ItemCarritoExtra
-📦 Gestión de Stock por Centro
-Implementado en:
-
-StockCentroService
-
-StockCentroRepository
-
-StockCentro (entidad)
-
-Funciones:
-
-Obtener stock por centro
-
-Obtener stock por producto
-
-Crear stock inicial
-
-Actualizar stock
-
-Aumentar stock
-
-Restar stock (validación incluida)
-
-Integración con carrito y pedidos
-
-🧾 Pedidos
-Implementado en:
-
-PedidoServiceImpl
-
-PedidoController
-
-Flujo:
-
-Validación de turno
-
-Validación de stock
-
-Creación del pedido
-
-Creación de detalles
-
-Descuento de stock real
-
-Generación de ticket (opcional)
-
-Cálculo de totales
-
-Listado por usuario o por centro
-
-📡 Endpoints Principales
-Autenticación
-Código
-POST /api/auth/login
-POST /api/auth/registro
-Carrito
-Código
-GET    /api/carrito
-POST   /api/carrito/agregar
-PUT    /api/carrito/cantidad
-DELETE /api/carrito/eliminar
-POST   /api/carrito/extra/agregar
-DELETE /api/carrito/extra/quitar
-Pedidos
-Código
-POST   /api/pedidos/carrito
-POST   /api/pedidos/frontend
-GET    /api/pedidos/usuario
-GET    /api/pedidos/{id}/detalles
-PUT    /api/pedidos/{id}/estado
-POST   /api/pedidos/{id}/ticket
-GET    /api/pedidos/{id}/totales
-GET    /api/pedidos/centro/{centroId}
-Stock
-Código
-GET    /api/stock/centro/{centroId}
-GET    /api/stock/{centroId}/{productoId}
-POST   /api/stock/crear
-PUT    /api/stock/actualizar
-PUT    /api/stock/aumentar
-PUT    /api/stock/restar
-🧪 Pruebas
-El backend está preparado para pruebas con:
-
-Postman
-
-Thunder Client
-
-Frontend React +  TypeScript
-
-🚀 Cómo ejecutar
-Configurar application.properties
-
-Crear BD
-
-Ejecutar:
-
-Código
-mvn spring-boot:run
-🧩 Decisiones pendientes del equipo
-¿Se mantiene el carrito?
-
-¿Se simplifica el flujo de pedidos?
-
-¿Se añade un sistema de roles más avanzado?
-
-
-¿Se añade auditoría de movimientos de stock?
-
-
-
-✔ Ya está hecho
-Unificación de tipos Integer/Long
-
-Limpieza de servicios
-
-Eliminación de métodos duplicados
-
-Integración correcta de stock
-
-Controladores coherentes
-
-PedidoServiceImpl completo
-
-CarritoService corregido
-
-StockCentroService completo
-
-Código compilando sin errores
-
-Flujo estable
-
-🔧 Falta por hacer
-1. Comentar todas las clases
-   Explicar propósito
-
-Explicar métodos clave
-
-Explicar relaciones con BD
-
-Revisar nombres de paquetes
-
-controlador → OK
-
-servicio → OK
-
-repositorio → OK
-
-modelo → OK
-
-Revisar imports no usados
-
-Revisar warnings del IDE
-
-Confirmar que no quedan Long/Integer mezclados
-
-
-☕ CaféApp Backend – Documentación Técnica
-Backend desarrollado en Spring Boot 3, con arquitectura modular, seguridad JWT, gestión de stock por centro y soporte para carrito y pedidos. Este documento sirve como guía para el equipo y como base para futuras decisiones sobre la evolución del proyecto.
-
-🧱 Arquitectura del Proyecto
-Código
-src/main/java/com/cafeapp/backend
-│
-├── controlador/        → Controladores REST (API pública)
-├── dto/                → Objetos de transferencia de datos
-├── excepciones/        → Manejo centralizado de errores
-├── modelo/             → Entidades JPA (mapeo BD)
-├── repositorio/        → Repositorios Spring Data JPA
-├── seguridad/          → JWT, filtros, autenticación
-└── servicio/           → Lógica de negocio
-El proyecto sigue una arquitectura en capas clara y separada, facilitando mantenimiento, pruebas y escalabilidad.
-
-🗄️ Base de Datos
-El backend está alineado con la estructura real de la BD:
-
-Entidades principales (Producto, ExtraProducto, Pedido, etc.) → Long
-
-Entidades internas (ItemCarrito, StockCentro, etc.) → Integer
-
-Relaciones clave:
-
-Centro 1–N Usuario
-
-Centro 1–N StockCentro
-
-Producto 1–N StockCentro
-
-Carrito 1–N ItemCarrito
-
-ItemCarrito 1–N ItemCarritoExtra
-
-Pedido 1–N DetallePedido
-
-DetallePedido 1–N DetalleExtra
-
-Toda la lógica del backend ha sido saneada para respetar estos tipos y relaciones.
-
-🔐 Seguridad
-Autenticación mediante JWT
-
-Login por email y contraseña
-
-Cada usuario pertenece a un Centro
-
-El stock y los pedidos se gestionan por centro
-
-🛒 Carrito (pendiente de decisión del equipo)
-El backend incluye un sistema de carrito funcional, pero su uso final dependerá del equipo.
-
-Características implementadas:
-
-Un carrito por usuario
-
-Items con cantidad
-
-Extras por item
-
-Validación de stock antes de agregar o actualizar
-
-Conversión del carrito a pedido
+Cálculo automático de totales
 
 Si se decide eliminarlo, está aislado en:
-
-Código
 CarritoService
+
 CarritoController
-ItemCarrito / ItemCarritoExtra
+
+Entidades: ItemCarrito, ItemCarritoExtra
+
 📦 Gestión de Stock por Centro
 Implementado en:
 
@@ -304,8 +102,9 @@ StockCentroRepository
 
 StockCentro (entidad)
 
-Funciones disponibles:
+StockCentroController
 
+Funciones:
 Obtener stock por centro
 
 Obtener stock por producto
@@ -316,19 +115,20 @@ Actualizar stock
 
 Aumentar stock
 
-Restar stock con validación
+Restar stock (con validación)
 
 Integración con carrito y pedidos
 
 🧾 Pedidos
 Implementado en:
+
+PedidoService
 
 PedidoServiceImpl
 
 PedidoController
 
 Flujo completo:
-
 Validación del turno
 
 Validación de stock
@@ -339,51 +139,110 @@ Creación de detalles
 
 Descuento de stock real
 
-Generación de ticket
+Generación de ticket (string)
 
 Cálculo de totales
 
 Listado por usuario o por centro
 
-📡 Endpoints Principales
-Autenticación
+💳 Pagos (Stripe)
+Implementado en:
+
+PaymentController
+
+StripeWebhookController
+
+StripeWebhookService
+
+Funciones:
+Crear PaymentIntent
+
+Calcular totales con impuestos
+
+Recibir webhooks de Stripe
+
+Validar firma del webhook
+
+🖼️ Subida de Imágenes (Cloudinary)
+Implementado en:
+
+CloudinaryService
+
+ProductoController
+
+Funciones:
+Subir imagen
+
+Subir imagen sobrescribiendo la existente
+
+Generar URL pública
+
+📡 Endpoints Principales (Versión Real)
+🔐 Autenticación
 Código
-POST /api/auth/login
-POST /api/auth/registro
-Carrito
+POST /auth/login
+POST /auth/register
+GET  /auth/me
+🛒 Carrito
 Código
-GET    /api/carrito
-POST   /api/carrito/agregar
-PUT    /api/carrito/cantidad
-DELETE /api/carrito/eliminar
-POST   /api/carrito/extra/agregar
-DELETE /api/carrito/extra/quitar
-Pedidos
+GET    /carrito
+POST   /carrito/items
+PUT    /carrito/items/{productoId}
+DELETE /carrito/items/{productoId}
+POST   /carrito/items/{itemId}/extras
+DELETE /carrito/items/{itemId}/extras/{extraId}
+DELETE /carrito
+🧾 Pedidos
 Código
-POST   /api/pedidos/carrito
-POST   /api/pedidos/frontend
-GET    /api/pedidos/usuario
-GET    /api/pedidos/{id}/detalles
-PUT    /api/pedidos/{id}/estado
-POST   /api/pedidos/{id}/ticket
-GET    /api/pedidos/{id}/totales
-GET    /api/pedidos/centro/{centroId}
-Stock
+POST /pedidos/carrito/{turnoId}
+POST /pedidos/frontend
+GET  /pedidos/mis
+GET  /pedidos/{pedidoId}/detalles
+PATCH /pedidos/{pedidoId}/estado
+GET  /pedidos/{pedidoId}/ticket
+GET  /pedidos/{pedidoId}/totales
+GET  /pedidos/centro/{centroId}
+📦 Stock por centro
 Código
-GET    /api/stock/centro/{centroId}
-GET    /api/stock/{centroId}/{productoId}
-POST   /api/stock/crear
-PUT    /api/stock/actualizar
-PUT    /api/stock/aumentar
-PUT    /api/stock/restar
+GET    /stock-centro
+GET    /stock-centro/{id}
+POST   /stock-centro
+PUT    /stock-centro/{id}
+DELETE /stock-centro/{id}
+🛍️ Productos
+Código
+GET    /productos
+GET    /productos/{id}
+POST   /productos
+PUT    /productos/{id}
+DELETE /productos/{id}
+POST   /productos/upload
+POST   /productos/upload/{productoId}
+GET    /productos/categoria/{nombre}
+🏫 Centros
+Código
+GET    /centros
+GET    /centros/{id}
+POST   /centros
+PUT    /centros/{id}
+DELETE /centros/{id}
+🍽️ Categorías
+Código
+GET    /categorias
+GET    /categorias/{id}
+POST   /categorias
+PUT    /categorias/{id}
+DELETE /categorias/{id}
 🧪 Pruebas
-El backend está preparado para pruebas mediante:
+El backend está preparado para pruebas con:
 
 Postman
 
 Thunder Client
 
 Frontend React + TypeScript
+
+Stripe CLI (para webhooks)
 
 🚀 Cómo ejecutar
 Configurar application.properties
@@ -397,10 +256,31 @@ mvn spring-boot:run
 🧩 Decisiones pendientes del equipo
 Mantener o eliminar el carrito
 
-Simplificar o modificar el flujo de pedidos
+Simplificar el flujo de pedidos
 
 Añadir roles avanzados
 
 Permitir o no stock negativo
 
 Añadir auditoría de movimientos de stock
+
+✔ Trabajo ya realizado
+Unificación de tipos Long/Integer
+
+Eliminación del DTO duplicado UsuarioResponse
+
+Limpieza completa de servicios
+
+Controladores coherentes
+
+StockCentroService completo
+
+PedidoServiceImpl completo
+
+CarritoService corregido
+
+Excepciones centralizadas
+
+Código compilando sin errores
+
+Flujo estable

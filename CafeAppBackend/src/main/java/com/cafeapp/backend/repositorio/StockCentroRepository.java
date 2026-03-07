@@ -6,9 +6,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface StockCentroRepository extends JpaRepository<StockCentro, Integer> {
+/**
+ * Repositorio para la entidad {@link StockCentro}.
+ */
+public interface StockCentroRepository extends JpaRepository<StockCentro, Long> {
 
-    Optional<StockCentro> findByCentroIdAndProductoId(Integer centroId, Long productoId);
+    /**
+     * Obtiene todos los registros de stock de un centro.
+     */
+    List<StockCentro> findByCentroId(Long centroId);
 
-    List<StockCentro> findByCentroId(Integer centroId);
+    /**
+     * Obtiene el stock de un producto en un centro específico.
+     */
+    Optional<StockCentro> findByCentroIdAndProductoId(Long centroId, Long productoId);
 }

@@ -943,3 +943,125 @@ body {
   transform: scale(1.2);
 }
 
+/* ================================
+   PANTALLA COCINA
+================================ */
+
+.cocina-contenedor {
+    padding: 20px;
+}
+
+.cocina-titulo {
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+.btn-volver {
+    background: #444;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.cocina-vacio {
+    font-size: 18px;
+    color: #777;
+}
+
+.pedido-card {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    background: #f7f7f7;
+}
+
+.pedido-titulo {
+    margin: 0 0 10px 0;
+}
+
+.pedido-cliente {
+    margin-bottom: 10px;
+}
+
+.pedido-lista {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 10px;
+}
+
+.pedido-item {
+    padding: 4px 0;
+}
+
+.btn-preparado {
+    background: green;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.cocina-cargando {
+    padding: 20px;
+    font-size: 18px;
+}
+
+/* ============================
+   GESTIÓN DE EMPLEADOS
+============================ */
+
+.empleados-contenedor {
+  padding: 20px;
+}
+
+.empleados-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 350px;
+  margin-bottom: 20px;
+}
+
+.empleados-form input {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.empleados-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.empleado-card {
+  border: 1px solid #ccc;
+  padding: 12px;
+  border-radius: 8px;
+  width: 220px;
+  background: #fafafa;
+}
+
+.btn-eliminar {
+  background: red;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-volver {
+  margin-top: 20px;
+  padding: 10px 16px;
+  background: #444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}

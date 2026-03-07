@@ -1,16 +1,19 @@
 package com.cafeapp.backend.controlador;
 
-import com.cafeapp.backend.dto.DetallePedidoResponse;
-import com.cafeapp.backend.dto.PedidoFrontendRequest;
-import com.cafeapp.backend.dto.PedidoTotales;
+import com.cafeapp.backend.dto.pedido.DetallePedidoResponse;
+import com.cafeapp.backend.dto.pedido.PedidoFrontendRequest;
+import com.cafeapp.backend.dto.pedido.PedidoTotales;
 import com.cafeapp.backend.modelo.Pedido;
 import com.cafeapp.backend.servicio.PedidoService;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/pedidos")
+@RequestMapping("/pedidos")
 public class PedidoController {
 
     private final PedidoService pedidoService;
@@ -19,70 +22,56 @@ public class PedidoController {
         this.pedidoService = pedidoService;
     }
 
-    // ============================================================
-    // CREAR PEDIDO DESDE CARRITO
-    // ============================================================
-    @PostMapping("/carrito")
-    public Pedido crearPedidoDesdeCarrito(@RequestParam Integer turnoId) {
-        return pedidoService.crearPedidoDesdeCarrito(turnoId);
+    @Operation(summary = "Crear pedido desde carrito del usuario autenticado")
+    @PostMapping("/carrito/{turnoId}")
+    public ResponseEntity<Pedido> crearDesdeCarrito(@PathVariable Long turnoId) {
+        return ResponseEntity.ok(pedidoService.crearPedidoDesdeCarrito(turnoId));
     }
 
-    // ============================================================
-    // CREAR PEDIDO DESDE FRONTEND DIRECTO
-    // ============================================================
+    @Operation(summary = "Crear pedido desde el frontend (usuario autenticado)")
     @PostMapping("/frontend")
-    public Pedido crearPedidoDesdeFrontend(@RequestBody PedidoFrontendRequest request) {
-        return pedidoService.crearPedidoDesdeFrontend(request);
+    public ResponseEntity<Pedido> crearDesdeFrontend(
+            @Valid @RequestBody PedidoFrontendRequest request
+    ) {
+        return ResponseEntity.ok(pedidoService.crearPedidoDesdeFrontend(request));
     }
 
-    // ============================================================
-    // LISTAR PEDIDOS DEL USUARIO
-    // ============================================================
-    @GetMapping("/usuario")
-    public List<Pedido> listarPedidosUsuario() {
-        return pedidoService.listarPedidosUsuario();
+    @Operation(summary = "Listar pedidos del usuario autenticado")
+    @GetMapping("/mis")
+    public ResponseEntity<List<Pedido>> listarPedidosUsuario() {
+        return ResponseEntity.ok(pedidoService.listarPedidosUsuario());
     }
 
-    // ============================================================
-    // DETALLES DE UN PEDIDO
-    // ============================================================
+    @Operation(summary = "Obtener detalles de un pedido")
     @GetMapping("/{pedidoId}/detalles")
-    public List<DetallePedidoResponse> obtenerDetalles(@PathVariable Long pedidoId) {
-        return pedidoService.obtenerDetallesPedido(pedidoId);
+    public ResponseEntity<List<DetallePedidoResponse>> obtenerDetalles(@PathVariable Long pedidoId) {
+        return ResponseEntity.ok(pedidoService.obtenerDetallesPedido(pedidoId));
     }
 
-    // ============================================================
-    // CAMBIAR ESTADO
-    // ============================================================
-    @PutMapping("/{pedidoId}/estado")
-    public Pedido cambiarEstado(
+    @Operation(summary = "Cambiar estado del pedido")
+    @PatchMapping("/{pedidoId}/estado")
+    public ResponseEntity<Pedido> cambiarEstado(
             @PathVariable Long pedidoId,
             @RequestParam String estado
     ) {
-        return pedidoService.cambiarEstado(pedidoId, estado);
+        return ResponseEntity.ok(pedidoService.cambiarEstado(pedidoId, estado));
     }
 
-    // ============================================================
-    // GENERAR TICKET
-    // ============================================================
-    @PostMapping("/{pedidoId}/ticket")
-    public void generarTicket(@PathVariable Long pedidoId) {
-        pedidoService.generarTicket(pedidoId);
+    @Operation(summary = "Generar ticket del pedido")
+    @GetMapping("/{pedidoId}/ticket")
+    public ResponseEntity<String> generarTicket(@PathVariable Long pedidoId) {
+        return ResponseEntity.ok(pedidoService.generarTicket(pedidoId));
     }
 
-    // ============================================================
-    // TOTALES
-    // ============================================================
+    @Operation(summary = "Calcular totales del pedido")
     @GetMapping("/{pedidoId}/totales")
-    public PedidoTotales calcularTotales(@PathVariable Long pedidoId) {
-        return pedidoService.calcularTotalesPedido(pedidoId);
+    public ResponseEntity<PedidoTotales> calcularTotales(@PathVariable Long pedidoId) {
+        return ResponseEntity.ok(pedidoService.calcularTotalesPedido(pedidoId));
     }
 
-    // ============================================================
-    // LISTAR PEDIDOS POR CENTRO
-    // ============================================================
+    @Operation(summary = "Listar pedidos por centro")
     @GetMapping("/centro/{centroId}")
-    public List<Pedido> listarPedidosPorCentro(@PathVariable Integer centroId) {
-        return pedidoService.listarPedidosPorCentro(centroId);
+    public ResponseEntity<List<Pedido>> listarPorCentro(@PathVariable Long centroId) {
+        return ResponseEntity.ok(pedidoService.listarPedidosPorCentro(centroId));
     }
 }

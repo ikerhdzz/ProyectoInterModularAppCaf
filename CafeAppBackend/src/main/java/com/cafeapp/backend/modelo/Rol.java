@@ -2,6 +2,11 @@ package com.cafeapp.backend.modelo;
 
 import jakarta.persistence.*;
 
+/**
+ * Representa un rol dentro del sistema (ADMIN, EMPLEADO, ALUMNO, PADRE...).
+ *
+ * Tabla relacionada: {@code rol}
+ */
 @Entity
 @Table(name = "rol")
 public class Rol {
@@ -9,13 +14,17 @@ public class Rol {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_rol")
-    private Integer id;
+    private Long id;
 
-    @Column(nullable = false)
+    /** Nombre del rol. */
     private String nombre;
 
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
+    // ============================
+    // GETTERS Y SETTERS
+    // ============================
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }

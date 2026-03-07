@@ -1,37 +1,56 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Pantalla, ElementoPedido, ElementoMenu } from './datos/tipos';
 import './App.css';
 
 import PantallaPedido from './screens/PantallaPedido';
 import PantallaPago from './screens/PantallaPago';
 import PantallaStock from './screens/PantallaStock';
-
 import PantallaLogin from './screens/PantallaLogin';
 import PantallaRegistro from './screens/PantallaRegistro';
+import PantallaCocina from './screens/PantallaCocina';
+
+import PantallaAdmin from './screens/PantallaAdmin';
+import PantallaEmpleados from './screens/PantallaEmpleados';
+import PantallaPedidosAdmin from './screens/PantallaPedidosAdmin';
+import PantallaEstadisticas from './screens/PantallaEstadisticas';
+
+import SelectorCentro from './componentes/SelectorCentro';
 
 export const App: React.FC = () => {
 
-  // Pantalla inicial → login
   const [pantalla, setPantalla] = useState<Pantalla>("login");
-
-  //  Token del usuario (cuando inicie sesión)
   const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
+  const [usuario, setUsuario] = useState<any>(null);
 
-  //  Estado del pedido
   const [pedido, setPedido] = useState<ElementoPedido[]>([]);
+
+  // Centro seleccionado SOLO para admin
+  const [centroSeleccionado, setCentroSeleccionado] = useState<number>(1);
 
   // ============================================================
   // 1. LOGIN / REGISTRO
   // ============================================================
 
-  const manejarLoginExitoso = (nuevoToken: string) => {
-    setToken(nuevoToken);
-    localStorage.setItem("token", nuevoToken);
-    setPantalla("menu");
+  const manejarLoginExitoso = (data: { token: string; usuario: any }) => {
+    setToken(data.token);
+    setUsuario(data.usuario);
+
+    localStorage.setItem("token", data.token);
+
+    const rol = data.usuario.rol.id;
+
+    if (rol === 3) {
+      setPantalla("menu");      // cliente
+    } else if (rol === 2) {
+      setPantalla("cocina");    // empleado
+    } else if (rol === 1) {
+      setPantalla("admin");     // admin ahora entra a PantallaAdmin
+    }
   };
 
   const manejarLogout = () => {
     setToken(null);
+    setUsuario(null);
     localStorage.removeItem("token");
     setPantalla("login");
     setPedido([]);
@@ -104,12 +123,55 @@ export const App: React.FC = () => {
   };
 
   // ============================================================
-  // 4. RENDERIZADO DE PANTALLAS
+  // 4. AUTOLOGIN SI YA HAY TOKEN
+  // ============================================================
+
+  useEffect(() => {
+    const cargarUsuario = async () => {
+      if (!token) return;
+
+      try {
+        const res = await fetch((import.meta as any).env?.VITE_API_BASE + "/api/auth/me", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!res.ok) {
+          manejarLogout();
+          return;
+        }
+
+        const usuario = await res.json();
+        setUsuario(usuario);
+
+        const rol = usuario.rol.id;
+
+        if (rol === 3) setPantalla("menu");
+        if (rol === 2) setPantalla("cocina");
+        if (rol === 1) setPantalla("admin"); // admin → PantallaAdmin
+
+      } catch (e) {
+        manejarLogout();
+      }
+    };
+
+    cargarUsuario();
+  }, []);
+
+  // ============================================================
+  // 5. RENDERIZADO DE PANTALLAS
   // ============================================================
 
   return (
     <>
-      {/* LOGIN */}
+
+      {/* Selector de centro SOLO para admin */}
+      {usuario?.rol?.id === 1 && (
+        <SelectorCentro
+          centroId={centroSeleccionado}
+          onChange={setCentroSeleccionado}
+        />
+      )}
+
       {pantalla === "login" && (
         <PantallaLogin
           alLoginExitoso={manejarLoginExitoso}
@@ -117,7 +179,6 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* REGISTRO */}
       {pantalla === "registro" && (
         <PantallaRegistro
           alRegistroExitoso={() => setPantalla("login")}
@@ -125,8 +186,8 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* MENÚ PRINCIPAL */}
-      {pantalla === "menu" && (
+      {/* CLIENTE */}
+      {pantalla === "menu" && usuario && usuario.rol.id === 3 && (
         <PantallaPedido
           pedido={pedido}
           alAgregar={agregarAlPedido}
@@ -134,11 +195,9 @@ export const App: React.FC = () => {
           alLimpiar={limpiarPedido}
           alAceptar={irAPago}
           manejarSalir={salir}
-          irAStock={() => setPantalla("stock")}
         />
       )}
 
-      {/* PAGO */}
       {pantalla === "pago" && (
         <PantallaPago
           pedido={pedido}
@@ -148,10 +207,57 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* STOCK */}
-      {pantalla === "stock" && (
-        <PantallaStock alSalir={() => setPantalla("menu")} />
+      {/* ADMIN → PantallaAdmin */}
+      {pantalla === "admin" && usuario && usuario.rol.id === 1 && (
+        <PantallaAdmin
+          irAStock={() => setPantalla("stock")}
+          irAPedidos={() => setPantalla("pedidosAdmin")}
+          irAEmpleados={() => setPantalla("empleados")}
+          irAEstadisticas={() => setPantalla("estadisticas")}
+          alSalir={manejarLogout}
+        />
       )}
+
+      {/* ADMIN → Gestión de Stock */}
+      {pantalla === "stock" && usuario && usuario.rol.id === 1 && (
+        <PantallaStock
+          centroId={centroSeleccionado}
+          alSalir={() => setPantalla("admin")}
+        />
+      )}
+
+      {/* ADMIN → Gestión de Pedidos */}
+      {pantalla === "pedidosAdmin" && usuario && usuario.rol.id === 1 && (
+        <PantallaPedidosAdmin
+          centroId={centroSeleccionado}
+          alSalir={() => setPantalla("admin")}
+        />
+      )}
+
+      {/* ADMIN → Gestión de Empleados */}
+      {pantalla === "empleados" && usuario && usuario.rol.id === 1 && (
+        <PantallaEmpleados
+          centroId={centroSeleccionado}
+          alSalir={() => setPantalla("admin")}
+        />
+      )}
+
+      {/* ADMIN → Estadísticas */}
+      {pantalla === "estadisticas" && usuario && usuario.rol.id === 1 && (
+        <PantallaEstadisticas
+          centroId={centroSeleccionado}
+          alSalir={() => setPantalla("admin")}
+        />
+      )}
+
+      {/*  EMPLEADO */}
+      {pantalla === "cocina" && usuario && usuario.rol.id === 2 && (
+        <PantallaCocina
+          centroId={usuario.centro?.id}
+          alSalir={() => setPantalla("menu")}
+        />
+      )}
+
     </>
   );
 };

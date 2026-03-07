@@ -1,3 +1,12 @@
 package com.cafeapp.backend.modelo;
 
-public enum EstadoPedido { PENDIENTE, EN_PREPARACION, LISTO, ENTREGADO, EXPIRADO }
+/**
+ * Estados posibles de un pedido dentro del sistema.
+ */
+public enum EstadoPedido {
+    PENDIENTE,
+    PREPARANDO,
+    LISTO,
+    ENTREGADO,
+    CANCELADO
+}

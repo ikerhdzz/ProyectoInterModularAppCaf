@@ -14,10 +14,21 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+/**
+ * Configuración principal de seguridad del backend.
+ *
+ * Incluye:
+ * - Autenticación con JWT
+ * - Filtro personalizado JwtFilter
+ * - Rutas públicas y protegidas
+ * - Sesiones sin estado (stateless)
+ * - Acceso permitido a Swagger UI
+ *
+ * NOTA IMPORTANTE:
+ * Se desactiva CORS dentro de Spring Security para evitar conflictos,
+ * permitiendo que la configuración global definida en CorsConfig sea la única activa.
+ */
 @Configuration
 public class SecurityConfig {
 
@@ -29,72 +40,96 @@ public class SecurityConfig {
         this.customUserDetailsService = customUserDetailsService;
     }
 
-    // ============================================================
-    // PasswordEncoder
-    // ============================================================
+    /**
+     * Bean para encriptar contraseñas usando BCrypt.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // ============================================================
-    // AuthenticationProvider (VERSIÓN CORRECTA PARA TU SPRING SECURITY)
-    // ============================================================
+    /**
+     * Proveedor de autenticación basado en usuarios cargados desde la BD.
+     */
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        // ESTA ES LA FORMA CORRECTA PARA ESTA VERSIÓN DE MI SPRING SECURITY
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(customUserDetailsService);
+        DaoAuthenticationProvider provider =
+                new DaoAuthenticationProvider(customUserDetailsService);
+
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
 
-    // ============================================================
-    // AuthenticationManager
-    // ============================================================
+    /**
+     * Expone el AuthenticationManager para manejar autenticaciones manuales.
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    // ============================================================
-    // Security Filter Chain
-    // ============================================================
+    /**
+     * Configuración principal de seguridad HTTP.
+     *
+     * - Desactiva CSRF (porque usamos JWT)
+     * - DESACTIVA CORS dentro de Spring Security para evitar conflictos
+     * - Define rutas públicas y protegidas
+     * - Añade el filtro JWT antes del filtro de autenticación estándar
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
+                // Desactivar CSRF porque usamos JWT
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // DESACTIVAR CORS en Spring Security
+                // Esto permite que SOLO CorsConfig maneje CORS
+                .cors(cors -> cors.disable())
+
+                // Sesiones sin estado (JWT)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // Reglas de autorización
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/productos/**").permitAll()
-                        .requestMatchers("/api/categorias/**").permitAll()
-                        .requestMatchers("/api/pedido/frontend").permitAll()
-                        .requestMatchers("/api/test/**").permitAll()
+
+                        // ============================
+                        // RUTAS PÚBLICAS
+                        // ============================
+
+                        // Autenticación
+                        .requestMatchers("/auth/login", "/auth/register").permitAll()
+
+                        // Webhook de Stripe
+                        .requestMatchers("/api/stripe/webhook").permitAll()
+
+                        // Swagger UI y documentación
+                        .requestMatchers(
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
+
+                        // ============================
+                        // RUTAS PROTEGIDAS
+                        // ============================
+
+                        // Pagos requieren autenticación
+                        .requestMatchers("/pagos/**").authenticated()
+
+                        // Todo lo demás requiere JWT
                         .anyRequest().authenticated()
                 )
+
+                // Proveedor de autenticación
                 .authenticationProvider(authenticationProvider())
+
+                // Filtro JWT antes del filtro estándar
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    // ============================================================
-    // CORS
-    // ============================================================
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-
-        config.addAllowedOriginPattern("*");
-        config.addAllowedMethod("*");
-        config.addAllowedHeader("*");
-        config.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-
-        return source;
     }
 }

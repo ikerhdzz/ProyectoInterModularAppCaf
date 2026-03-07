@@ -1,17 +1,27 @@
 package com.cafeapp.backend.servicio;
 
-import com.cafeapp.backend.dto.DetallePedidoResponse;
-import com.cafeapp.backend.dto.PedidoFrontendRequest;
-import com.cafeapp.backend.dto.PedidoTotales;
-import com.cafeapp.backend.modelo.DetallePedido;
+import com.cafeapp.backend.dto.pedido.DetallePedidoResponse;
+import com.cafeapp.backend.dto.pedido.PedidoFrontendRequest;
+import com.cafeapp.backend.dto.pedido.PedidoTotales;
 import com.cafeapp.backend.modelo.Pedido;
-import com.cafeapp.backend.modelo.Ticket;
 
 import java.util.List;
 
+/**
+ * Interfaz principal del módulo de pedidos.
+ *
+ * Define todas las operaciones disponibles:
+ * - Crear pedidos (carrito o frontend)
+ * - Listar pedidos del usuario
+ * - Obtener detalles
+ * - Cambiar estado
+ * - Generar ticket
+ * - Calcular totales
+ * - Listar pedidos por centro
+ */
 public interface PedidoService {
 
-    Pedido crearPedidoDesdeCarrito(Integer turnoId);
+    Pedido crearPedidoDesdeCarrito(Long turnoId);
 
     Pedido crearPedidoDesdeFrontend(PedidoFrontendRequest request);
 
@@ -21,15 +31,9 @@ public interface PedidoService {
 
     Pedido cambiarEstado(Long pedidoId, String nuevoEstado);
 
-    Ticket generarTicket(Long pedidoId);
-
-    double calcularTotalPedido(Long pedidoId);
+    String generarTicket(Long pedidoId);
 
     PedidoTotales calcularTotalesPedido(Long pedidoId);
 
-    void expirarPedidos();
-
-    List<Pedido> listarPedidosPorCentro(Integer centroId);
-
-    void agregarExtras(DetallePedido detalle, List<Long> extrasIds);
+    List<Pedido> listarPedidosPorCentro(Long centroId);
 }
