@@ -18,6 +18,20 @@ export const PantallaRegistro: React.FC<Props> = ({ alRegistroExitoso, irALogin 
   const manejarSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    // Validación en cliente
+    if (!dni || !clase || !nombre || !email || !password) {
+      setError('Todos los campos son obligatorios');
+      return;
+    }
+
+    // Validar DNI: 8 dígitos + letra
+    const dniRegex = /^\d{8}[A-Za-z]$/;
+    if (!dniRegex.test(dni)) {
+      setError('El DNI debe tener 8 dígitos seguidos de una letra');
+      return;
+    }
+
     setCargando(true);
 
     try {
@@ -27,12 +41,15 @@ export const PantallaRegistro: React.FC<Props> = ({ alRegistroExitoso, irALogin 
         nombre,
         email,
         password,
-        rolId: 3, // TODOS los que se registran son CLIENTES
+        cursoId: 1, // Usar curso por defecto
+        rolId: 1, // Cliente
       });
 
       alRegistroExitoso();
-    } catch (err) {
-      setError('No se pudo completar el registro');
+    } catch (err: any) {
+      console.error('Error en registro:', err);
+      const mensajeError = err?.message || 'No se pudo completar el registro';
+      setError(mensajeError);
     } finally {
       setCargando(false);
     }
@@ -56,8 +73,8 @@ export const PantallaRegistro: React.FC<Props> = ({ alRegistroExitoso, irALogin 
           </label>
 
           <label>
-            Clase (opcional)
-            <input value={clase} onChange={e => setClase(e.target.value)} />
+            Clase
+            <input value={clase} onChange={e => setClase(e.target.value)} required placeholder="Ej: 1ºA, 2ºB" />
           </label>
 
           <label>

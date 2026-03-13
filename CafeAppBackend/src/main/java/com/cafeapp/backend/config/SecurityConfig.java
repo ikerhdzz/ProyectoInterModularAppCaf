@@ -1,12 +1,11 @@
 package com.cafeapp.backend.config;
 
-import com.cafeapp.backend.seguridad.CustomUserDetailsService;
-import com.cafeapp.backend.seguridad.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -14,6 +13,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.cafeapp.backend.seguridad.CustomUserDetailsService;
+import com.cafeapp.backend.seguridad.JwtFilter;
 
 /**
  * Configuración principal de seguridad del backend.
@@ -83,9 +85,9 @@ public class SecurityConfig {
                 // Desactivar CSRF porque usamos JWT
                 .csrf(csrf -> csrf.disable())
 
-                // DESACTIVAR CORS en Spring Security
-                // Esto permite que SOLO CorsConfig maneje CORS
-                .cors(cors -> cors.disable())
+                // Habilitar CORS en Spring Security para que utilice
+                // la configuración global definida en CorsConfig
+                .cors(Customizer.withDefaults())
 
                 // Sesiones sin estado (JWT)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -97,8 +99,8 @@ public class SecurityConfig {
                         // RUTAS PÚBLICAS
                         // ============================
 
-                        // Autenticación
-                        .requestMatchers("/auth/login", "/auth/register").permitAll()
+                        // Autenticación (permitir tanto /auth como /api/auth)
+                        .requestMatchers("/auth/**", "/api/auth/**").permitAll()
 
                         // Webhook de Stripe
                         .requestMatchers("/api/stripe/webhook").permitAll()

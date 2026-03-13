@@ -1,14 +1,24 @@
 package com.cafeapp.backend.seguridad;
 
-import com.cafeapp.backend.modelo.Usuario;
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import com.cafeapp.backend.modelo.Usuario;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.Keys;
 
 /**
  * Utilidad para generar, validar y extraer información de tokens JWT.
@@ -21,6 +31,8 @@ import java.util.Date;
  */
 @Component
 public class JwtUtil {
+    
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
 
     /** Clave secreta definida en application.properties */
     @Value("${jwt.secret}")
@@ -80,7 +92,6 @@ public class JwtUtil {
     public String obtenerRol(String token) {
         return (String) getClaims(token).get("rol");
     }
-
     /**
      * Valida si un token es correcto y no ha expirado.
      *
@@ -93,17 +104,23 @@ public class JwtUtil {
             return true;
 
         } catch (ExpiredJwtException e) {
-            System.out.println(" Token expirado");
+            logger.warn("Intento de usar token expirado");
+            return false;
         } catch (MalformedJwtException e) {
-            System.out.println(" Token malformado");
+            logger.warn("Intento de usar token malformado");
+            return false;
         } catch (SignatureException e) {
-            System.out.println(" Firma JWT inválida");
+            logger.warn("Intento de usar token con firma inválida");
+            return false;
         } catch (UnsupportedJwtException e) {
-            System.out.println(" Token JWT no soportado");
+            logger.warn("Token JWT no soportado");
+            return false;
         } catch (IllegalArgumentException e) {
-            System.out.println(" Token vacío o inválido");
+            logger.warn("Token vacío o inválido");
+            return false;
+        } catch (Exception e) {
+            logger.error("Error inesperado validando JWT", e);
+            return false;
         }
-
-        return false;
     }
 }

@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 
-export default function PantallaEmpleados({ centroId, alSalir }) {
-  const [empleados, setEmpleados] = useState([]);
+interface Props {
+  centroId: number;
+  alSalir: () => void;
+}
+
+export default function PantallaEmpleados({ centroId, alSalir }: Props) {
+  const [empleados, setEmpleados] = useState<any[]>([]);
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [dni, setDni] = useState("");
@@ -26,7 +31,7 @@ export default function PantallaEmpleados({ centroId, alSalir }) {
   // ============================================================
   // Crear empleado
   // ============================================================
-  const crearEmpleado = async (e) => {
+  const crearEmpleado = async (e: React.FormEvent) => {
     e.preventDefault();
     setCargando(true);
 
@@ -57,7 +62,7 @@ export default function PantallaEmpleados({ centroId, alSalir }) {
   // ============================================================
   // Eliminar empleado
   // ============================================================
-  const eliminarEmpleado = async (id) => {
+  const eliminarEmpleado = async (id: number) => {
     if (!window.confirm("¿Eliminar empleado?")) return;
 
     await fetch(`${BASE}/api/empleados/${id}`, { method: "DELETE" });

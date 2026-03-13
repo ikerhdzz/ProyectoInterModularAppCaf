@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { login } from '../api/auth';
 
 interface Props {
-  alLoginExitoso: (token: string) => void;
+  alLoginExitoso: (data: { token: string; usuario: any }) => void;
   irARegistro: () => void;
 }
 
@@ -17,8 +17,9 @@ export const PantallaLogin: React.FC<Props> = ({ alLoginExitoso, irARegistro }) 
     setError(null);
     setCargando(true);
     try {
-      const token = await login({ email, password });
-      alLoginExitoso(token);
+      const resultado = await login({ email, password });
+      console.log('🎯 Llamando a alLoginExitoso con:', resultado);
+      alLoginExitoso(resultado);
     } catch (err) {
       setError('Email o contraseña incorrectos');
     } finally {

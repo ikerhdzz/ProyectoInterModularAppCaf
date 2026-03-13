@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
+import type { Pedido } from "../datos/tipos";
 
-export default function PantallaCocina({ centroId, alSalir }) {
-    const [pedidos, setPedidos] = useState([]);
+interface Props {
+  centroId: number;
+  alSalir: () => void;
+}
+
+export default function PantallaCocina({ centroId, alSalir }: Props) {
+    const [pedidos, setPedidos] = useState<Pedido[]>([]);
     const [cargando, setCargando] = useState(true);
 
     const BASE = (import.meta as any).env?.VITE_API_BASE || "";
@@ -20,7 +26,7 @@ export default function PantallaCocina({ centroId, alSalir }) {
         }
     };
 
-    const marcarPreparado = async (idPedido) => {
+    const marcarPreparado = async (idPedido: number) => {
         try {
             const res = await fetch(`${BASE}/api/pedidos/${idPedido}/preparado`, {
                 method: "PUT",
@@ -67,7 +73,7 @@ export default function PantallaCocina({ centroId, alSalir }) {
                     <ul className="pedido-lista">
                         {pedido.items?.map((item) => (
                             <li key={item.id} className="pedido-item">
-                                {item.cantidad} × {item.producto?.nombre}
+                                {item.cantidad} × {item.nombre}
                             </li>
                         ))}
                     </ul>

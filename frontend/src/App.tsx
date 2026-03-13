@@ -31,20 +31,41 @@ export const App: React.FC = () => {
   // 1. LOGIN / REGISTRO
   // ============================================================
 
-  const manejarLoginExitoso = (data: { token: string; usuario: any }) => {
-    setToken(data.token);
-    setUsuario(data.usuario);
+  const manejarLoginExitoso = (loginData: { token: string; usuario: any } | string) => {
+    let token: string;
+    let usuario: any = null;
 
-    localStorage.setItem("token", data.token);
+    if (typeof loginData === 'string') {
+      token = loginData;
+    } else {
+      token = loginData.token;
+      usuario = loginData.usuario;
+    }
 
-    const rol = data.usuario.rol.id;
+    // Normalizar rol si viene como string en vez de objeto
+    if (usuario && typeof usuario.rol === 'string') {
+      const mapaRoles: Record<string, number> = {
+        'admin': 1,
+        'empleado': 2,
+        'cliente': 3,
+      };
+      usuario = {
+        ...usuario,
+        rol: { id: mapaRoles[usuario.rol] ?? 3 }
+      };
+    }
 
-    if (rol === 3) {
-      setPantalla("menu");      // cliente
-    } else if (rol === 2) {
-      setPantalla("cocina");    // empleado
-    } else if (rol === 1) {
-      setPantalla("admin");     // admin ahora entra a PantallaAdmin
+    setToken(token);
+    if (usuario) {
+      setUsuario(usuario);
+      localStorage.setItem("token", token);
+
+      const rol = usuario.rol.id;
+      console.log('🎭 Rol detectado:', rol);
+
+      if (rol === 3) setPantalla("menu");
+      else if (rol === 2) setPantalla("cocina");
+      else if (rol === 1) setPantalla("admin");
     }
   };
 
@@ -128,10 +149,12 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     const cargarUsuario = async () => {
+      const BASE = (import.meta as any).env?.VITE_API_BASE || "";
+
       if (!token) return;
 
       try {
-        const res = await fetch((import.meta as any).env?.VITE_API_BASE + "/api/auth/me", {
+        const res = await fetch(BASE + "/api/auth/me", {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -195,6 +218,7 @@ export const App: React.FC = () => {
           alLimpiar={limpiarPedido}
           alAceptar={irAPago}
           manejarSalir={salir}
+          irAStock={() => setPantalla("stock")}
         />
       )}
 

@@ -49,7 +49,7 @@ public class CorsConfig {
                         )
 
                         // Métodos HTTP permitidos
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
 
                         // Permitir cualquier encabezado
                         .allowedHeaders("*")
