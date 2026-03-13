@@ -1065,3 +1065,104 @@ body {
   border-radius: 6px;
   cursor: pointer;
 }
+
+/* Botón dentro de la tarjeta */
+.boton-detalles {
+  margin-top: 8px;
+  padding: 6px 12px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.boton-detalles:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Fondo oscuro detrás de la ventana flotante */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* La tarjeta blanca del medio */
+.modal-contenido {
+  background: white;
+  padding: 24px;
+  border-radius: 15px;
+  max-width: 400px;
+  width: 90%;
+  position: relative;
+  text-align: center;
+  color: #333;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* Botón de cerrar (X) */
+.modal-cerrar {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #888;
+}
+
+.modal-cerrar:hover {
+  color: #333;
+}
+
+/* Imagen dentro del modal */
+.modal-imagen {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+.modal-titulo {
+  color: #667eea;
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+.modal-precio {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Botón de añadir dentro del modal */
+.modal-boton-añadir {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s;
+}
+
+.modal-boton-añadir:hover {
+  background: #059669;
+}
