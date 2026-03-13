@@ -1,4 +1,9 @@
-export default function PantallaEstadisticas({ centroId, alSalir }) {
+interface Props {
+  centroId: number;
+  alSalir: () => void;
+}
+
+export default function PantallaEstadisticas({ centroId, alSalir }: Props) {
   return (
     <div className="pantalla-estadisticas">
       <h1>Estadísticas Globales</h1>

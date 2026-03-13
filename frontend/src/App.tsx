@@ -31,20 +31,32 @@ export const App: React.FC = () => {
   // 1. LOGIN / REGISTRO
   // ============================================================
 
-  const manejarLoginExitoso = (data: { token: string; usuario: any }) => {
-    setToken(data.token);
-    setUsuario(data.usuario);
+  const manejarLoginExitoso = (loginData: { token: string; usuario: any } | string) => {
+    // Manejar tanto string (token) como objeto con token y usuario
+    let token: string;
+    let usuario: any = null;
 
-    localStorage.setItem("token", data.token);
+    if (typeof loginData === 'string') {
+      token = loginData;
+    } else {
+      token = loginData.token;
+      usuario = loginData.usuario;
+    }
 
-    const rol = data.usuario.rol.id;
+    setToken(token);
+    if (usuario) {
+      setUsuario(usuario);
+      localStorage.setItem("token", token);
 
-    if (rol === 3) {
-      setPantalla("menu");      // cliente
-    } else if (rol === 2) {
-      setPantalla("cocina");    // empleado
-    } else if (rol === 1) {
-      setPantalla("admin");     // admin ahora entra a PantallaAdmin
+      const rol = usuario.rol.id;
+
+      if (rol === 3) {
+        setPantalla("menu");      // cliente
+      } else if (rol === 2) {
+        setPantalla("cocina");    // empleado
+      } else if (rol === 1) {
+        setPantalla("admin");     // admin ahora entra a PantallaAdmin
+      }
     }
   };
 
@@ -195,6 +207,7 @@ export const App: React.FC = () => {
           alLimpiar={limpiarPedido}
           alAceptar={irAPago}
           manejarSalir={salir}
+          irAStock={() => setPantalla("stock")}
         />
       )}
 

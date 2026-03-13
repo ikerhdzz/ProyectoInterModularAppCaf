@@ -1,5 +1,17 @@
 package com.cafeapp.backend.controlador;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.cafeapp.backend.dto.auth.LoginRequest;
 import com.cafeapp.backend.dto.auth.LoginResponse;
 import com.cafeapp.backend.dto.auth.RegistroRequest;
@@ -11,29 +23,25 @@ import com.cafeapp.backend.repositorio.CursoRepository;
 import com.cafeapp.backend.repositorio.RolRepository;
 import com.cafeapp.backend.seguridad.JwtUtil;
 import com.cafeapp.backend.servicio.UsuarioService;
+import com.cafeapp.backend.servicio.UsuarioValidationService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
 
 /**
  * Controlador REST para autenticación y registro de usuarios.
  * Maneja login, registro y obtención del usuario autenticado.
  */
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     private final UsuarioService usuarioService;
+    private final UsuarioValidationService usuarioValidationService;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
@@ -42,6 +50,7 @@ public class AuthController {
 
     public AuthController(
             UsuarioService usuarioService,
+            UsuarioValidationService usuarioValidationService,
             JwtUtil jwtUtil,
             AuthenticationManager authenticationManager,
             PasswordEncoder passwordEncoder,
@@ -49,6 +58,7 @@ public class AuthController {
             RolRepository rolRepository
     ) {
         this.usuarioService = usuarioService;
+        this.usuarioValidationService = usuarioValidationService;
         this.jwtUtil = jwtUtil;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
@@ -102,6 +112,9 @@ public class AuthController {
     })
     @PostMapping("/register")
     public ResponseEntity<UsuarioResponse> register(@Valid @RequestBody RegistroRequest request) {
+        
+        // ✅ Validar que el email no esté registrado
+        usuarioValidationService.validarEmailUnico(request.email());
 
         Usuario usuario = new Usuario();
         usuario.setNombre(request.nombre());
@@ -113,11 +126,12 @@ public class AuthController {
         Curso curso = cursoRepository.findById(request.cursoId())
                 .orElseThrow(() -> new RuntimeException("Curso no encontrado"));
 
-        Rol rol = rolRepository.findById(request.rolId())
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+        // ✅ ASIGNAR ROL POR DEFECTO: USUARIO (nunca tomar del cliente)
+        Rol rolPorDefecto = rolRepository.findByNombre("USUARIO")
+                .orElseThrow(() -> new RuntimeException("Rol USUARIO no configurado en el sistema"));
 
         usuario.setCurso(curso);
-        usuario.setRol(rol);
+        usuario.setRol(rolPorDefecto);
 
         Usuario guardado = usuarioService.guardar(usuario);
 

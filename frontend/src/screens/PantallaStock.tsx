@@ -8,10 +8,11 @@ interface ItemStock extends ElementoMenu {
 }
 
 interface Props {
+  centroId: number;
   alSalir: () => void;
 }
 
-export const PantallaStock: React.FC<Props> = ({ alSalir }) => {
+export const PantallaStock: React.FC<Props> = ({ centroId: _centroId, alSalir }) => {
   // Inicializamos el estado con los datos del menú y un stock simulado de 50
   const [inventario, setInventario] = useState<ItemStock[]>(
     datosMenu.map(item => ({ ...item, stock: Math.floor(Math.random() * 50) + 10 }))
@@ -24,7 +25,7 @@ export const PantallaStock: React.FC<Props> = ({ alSalir }) => {
   const [newImageFile, setNewImageFile] = useState<File | null>(null);
   const [newCategoriaId, setNewCategoriaId] = useState<number | undefined>(undefined);
   const [editingImageIndex, setEditingImageIndex] = useState<number | null>(null);
-  const [editingImageValue, setEditingImageValue] = useState<string>('');
+  // const [editingImageValue, setEditingImageValue] = useState<string>('');
 
   useEffect(() => {
     let mounted = true;
@@ -215,34 +216,11 @@ export const PantallaStock: React.FC<Props> = ({ alSalir }) => {
   const toggleEditarImagen = (index: number) => {
     if (editingImageIndex === index) {
       setEditingImageIndex(null);
-      setEditingImageValue('');
+      // setEditingImageValue('');
       return;
     }
     setEditingImageIndex(index);
-    setEditingImageValue(inventario[index]?.imagen ?? '');
-  };
-
-  const guardarImagen = async (index: number) => {
-    const item = inventario[index];
-    if (!item) return;
-    const base = (import.meta as any).env?.VITE_API_BASE || '';
-    try {
-      const body = { imagen: editingImageValue };
-      const res = await fetch(base + `/api/productos/${item.id}`, {
-        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
-      });
-      if (!res.ok) throw new Error('Error guardando imagen');
-      // actualizar localmente
-      const nuevo = [...inventario];
-      // @ts-ignore
-      nuevo[index].imagen = editingImageValue;
-      setInventario(nuevo);
-      setEditingImageIndex(null);
-      setEditingImageValue('');
-    } catch (e) {
-      console.error('No se pudo guardar la imagen:', e);
-      alert('Error guardando la imagen. Mira la consola.');
-    }
+    // setEditingImageValue(inventario[index]?.imagen ?? '');
   };
 
   const quitarImagen = async (index: number) => {
@@ -260,7 +238,7 @@ export const PantallaStock: React.FC<Props> = ({ alSalir }) => {
       nuevo[index].imagen = '';
       setInventario(nuevo);
       setEditingImageIndex(null);
-      setEditingImageValue('');
+      // setEditingImageValue('');
     } catch (e) {
       console.error('No se pudo eliminar la imagen:', e);
       alert('Error eliminando la imagen. Mira la consola.');
