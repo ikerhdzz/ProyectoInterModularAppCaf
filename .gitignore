@@ -7,6 +7,8 @@
 .env.test.local
 .env.production.local
 
+application.properties
+
 # ==========================================
 # 2. BINARIOS Y DEPENDENCIAS PESADAS
 # ==========================================
