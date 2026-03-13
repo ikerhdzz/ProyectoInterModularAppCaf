@@ -33,15 +33,39 @@ export const PantallaPedido: React.FC<Props> = ({
   useEffect(() => {
     let mounted = true;
 
-    obtenerDatosMenu('').then(list => {
+    // Obtener token del localStorage
+    const token = localStorage.getItem('token');
+
+    obtenerDatosMenu('', token).then(list => {
       if (mounted) setMenu(list);
     });
 
     const base = (import.meta as any).env?.VITE_API_BASE || '';
-    fetch(base + "/api/categorias")
-      .then(r => r.json())
-      .then(data => mounted && setCategorias(data))
-      .catch(() => setCategorias([]));
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    fetch(base + "/api/categorias", { headers })
+      .then(r => {
+        if (!r.ok) {
+          console.warn(`Error ${r.status} al obtener categorías`);
+          return [];
+        }
+        return r.json();
+      })
+      .then(data => {
+        if (mounted && Array.isArray(data)) {
+          setCategorias(data);
+        } else {
+          console.warn('Categorías no es un array:', data);
+          setCategorias([]);
+        }
+      })
+      .catch(err => {
+        console.error('Error al obtener categorías:', err);
+        setCategorias([]);
+      });
 
     return () => { mounted = false; };
   }, []);

@@ -14,12 +14,18 @@ const datosPorDefecto: ElementoMenu[] = [
 ];
 
 // Fetch del backend: /api/productos
-export async function obtenerDatosMenu(baseUrl = ''): Promise<ElementoMenu[]> {
+export async function obtenerDatosMenu(baseUrl = '', token?: string): Promise<ElementoMenu[]> {
   const envBase = typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_API_BASE;
   const base = baseUrl || envBase || '';
   const url = base + '/api/productos';
+  
+  const headers: Record<string, string> = { 'Accept': 'application/json' };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
   try {
-    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    const res = await fetch(url, { headers });
     if (!res.ok) {
       console.warn(`obtenerDatosMenu: respuesta ${res.status}, usando datos por defecto`);
       return datosPorDefecto;

@@ -18,6 +18,7 @@ export const PantallaLogin: React.FC<Props> = ({ alLoginExitoso, irARegistro }) 
     setCargando(true);
     try {
       const resultado = await login({ email, password });
+      console.log('🎯 Llamando a alLoginExitoso con:', resultado);
       alLoginExitoso(resultado);
     } catch (err) {
       setError('Email o contraseña incorrectos');

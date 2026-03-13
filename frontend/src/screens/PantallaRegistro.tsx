@@ -42,7 +42,7 @@ export const PantallaRegistro: React.FC<Props> = ({ alRegistroExitoso, irALogin 
         email,
         password,
         cursoId: 1, // Usar curso por defecto
-        rolId: 3, // Cliente
+        rolId: 1, // Cliente
       });
 
       alRegistroExitoso();

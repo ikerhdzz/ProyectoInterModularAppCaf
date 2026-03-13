@@ -32,7 +32,6 @@ export const App: React.FC = () => {
   // ============================================================
 
   const manejarLoginExitoso = (loginData: { token: string; usuario: any } | string) => {
-    // Manejar tanto string (token) como objeto con token y usuario
     let token: string;
     let usuario: any = null;
 
@@ -43,20 +42,30 @@ export const App: React.FC = () => {
       usuario = loginData.usuario;
     }
 
+    // Normalizar rol si viene como string en vez de objeto
+    if (usuario && typeof usuario.rol === 'string') {
+      const mapaRoles: Record<string, number> = {
+        'admin': 1,
+        'empleado': 2,
+        'cliente': 3,
+      };
+      usuario = {
+        ...usuario,
+        rol: { id: mapaRoles[usuario.rol] ?? 3 }
+      };
+    }
+
     setToken(token);
     if (usuario) {
       setUsuario(usuario);
       localStorage.setItem("token", token);
 
       const rol = usuario.rol.id;
+      console.log('🎭 Rol detectado:', rol);
 
-      if (rol === 3) {
-        setPantalla("menu");      // cliente
-      } else if (rol === 2) {
-        setPantalla("cocina");    // empleado
-      } else if (rol === 1) {
-        setPantalla("admin");     // admin ahora entra a PantallaAdmin
-      }
+      if (rol === 3) setPantalla("menu");
+      else if (rol === 2) setPantalla("cocina");
+      else if (rol === 1) setPantalla("admin");
     }
   };
 
@@ -140,10 +149,12 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     const cargarUsuario = async () => {
+      const BASE = (import.meta as any).env?.VITE_API_BASE || "";
+
       if (!token) return;
 
       try {
-        const res = await fetch((import.meta as any).env?.VITE_API_BASE + "/api/auth/me", {
+        const res = await fetch(BASE + "/api/auth/me", {
           headers: { Authorization: `Bearer ${token}` }
         });
 
