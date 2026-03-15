@@ -127,8 +127,8 @@ public class AuthController {
                 .orElseThrow(() -> new RuntimeException("Curso no encontrado"));
 
         // ✅ ASIGNAR ROL POR DEFECTO: USUARIO (nunca tomar del cliente)
-        Rol rolPorDefecto = rolRepository.findByNombre("USUARIO")
-                .orElseThrow(() -> new RuntimeException("Rol USUARIO no configurado en el sistema"));
+        Rol rolPorDefecto = rolRepository.findById(3L)
+                .orElseThrow(() -> new RuntimeException("Rol con ID 3 no configurado en el sistema"));
 
         usuario.setCurso(curso);
         usuario.setRol(rolPorDefecto);

@@ -35,7 +35,7 @@ import jakarta.validation.Valid;
  * y filtrado por categoría.
  */
 @RestController
-@RequestMapping("/productos")
+@RequestMapping("/api/productos")
 public class ProductoController {
 
     private final ProductoService productoService;

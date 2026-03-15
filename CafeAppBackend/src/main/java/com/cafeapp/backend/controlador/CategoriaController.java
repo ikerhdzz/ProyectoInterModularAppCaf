@@ -20,7 +20,7 @@ import java.util.List;
  * Incluye CRUD estándar y endpoints específicos por tipo de categoría.
  */
 @RestController
-@RequestMapping("/categorias")
+@RequestMapping("/api/categorias")
 public class CategoriaController {
 
     private final CategoriaService categoriaService;
