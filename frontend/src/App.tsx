@@ -26,7 +26,7 @@ export const App: React.FC = () => {
   const [pedido, setPedido] = useState<ElementoPedido[]>([]);
 
   // Estado para guardar los alérgenos del usuario actual
-  const [alergenosUsuario, setAlergenosUsuario] = useState<string[]>([]);
+  const [alergenosUsuario, setAlergenosUsuario] = useState<number[]>([]);
 
   // Centro seleccionado SOLO para admin
   const [centroSeleccionado, setCentroSeleccionado] = useState<number>(1);
@@ -207,8 +207,8 @@ useEffect(() => {
       {/* PANTALLA ALÉRGENOS */}
       {pantalla === "alergenos" && usuario?.rol?.id === 3 && (
         <PantallaAlergenos 
-          onContinuar={(alergenosSeleccionados) => {
-            setAlergenosUsuario(alergenosSeleccionados);
+          onContinuar={(ids: number[]) => {
+            setAlergenosUsuario(ids);
             setPantalla("menu");
           }} 
         />

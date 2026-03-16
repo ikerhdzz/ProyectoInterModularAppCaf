@@ -6,12 +6,11 @@ interface AlergenoDTO {
 }
 
 interface Props {
-  onContinuar: (alergenosSeleccionados: string[]) => void;
+  onContinuar: (alergenosSeleccionados: number[]) => void;
 }
-
 export default function PantallaAlergenos({ onContinuar }: Props) {
   const [alergenosBD, setAlergenosBD] = useState<AlergenoDTO[]>([]);
-  const [seleccionados, setSeleccionados] = useState<string[]>([]);
+  const [seleccionados, setSeleccionados] = useState<number[]>([]);
   const [cargando, setCargando] = useState<boolean>(true);
 
   useEffect(() => {
@@ -33,15 +32,14 @@ export default function PantallaAlergenos({ onContinuar }: Props) {
         setCargando(false);
       }
     };
-
     fetchAlergenos();
   }, []);
 
-  const toggleAlergeno = (nombreAlergeno: string) => {
-    if (seleccionados.includes(nombreAlergeno)) {
-      setSeleccionados(seleccionados.filter(a => a !== nombreAlergeno));
+  const toggleAlergeno = (id: number) => {
+    if (seleccionados.includes(id)) {
+      setSeleccionados(seleccionados.filter(a => a !== id));
     } else {
-      setSeleccionados([...seleccionados, nombreAlergeno]);
+      setSeleccionados([...seleccionados, id]);
     }
   };
 
@@ -56,26 +54,24 @@ export default function PantallaAlergenos({ onContinuar }: Props) {
   return (
     <div className="aplicacion flex-centrado">
       <div className="alergenos-contenedor">
-        
         <h2 className="alergenos-titulo">Tus Alérgenos</h2>
         <p className="alergenos-subtitulo">
-          Por tu seguridad, marca los alérgenos que te afectan. 
-          Solo te mostraremos los productos seguros para ti.
+          Marca los alérgenos que te afectan para filtrar el menú.
         </p>
 
         <div className="alergenos-grid">
-        {alergenosBD.map(alergeno => {
-            const activo = seleccionados.includes(alergeno.nombre);
+          {alergenosBD.map(alergeno => {
+            const activo = seleccionados.includes(alergeno.id);
             return (
-            <button
+              <button
                 key={alergeno.id}
-                onClick={() => toggleAlergeno(alergeno.nombre)}
+                onClick={() => toggleAlergeno(alergeno.id)}
                 className={`alergeno-btn ${activo ? 'alergeno-btn-activo' : ''}`}
-            >
+              >
                 {alergeno.nombre}
-            </button>
+              </button>
             );
-        })}
+          })}
         </div>
 
         <button
@@ -84,7 +80,6 @@ export default function PantallaAlergenos({ onContinuar }: Props) {
         >
           Continuar al Menú
         </button>
-
       </div>
     </div>
   );
