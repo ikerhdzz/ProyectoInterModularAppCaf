@@ -6,6 +6,7 @@ export interface ElementoMenu {
   categoriaId?: number;
   categoriaNombre?: string;
   alergenosIds: number[];
+  categoria: string;
 }
 
 export interface ElementoPedido extends ElementoMenu {

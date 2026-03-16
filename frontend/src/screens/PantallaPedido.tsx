@@ -38,24 +38,47 @@ export const PantallaPedido: React.FC<Props> = ({
     const headers: Record<string, string> = {
       'Authorization': token ? `Bearer ${token}` : ''
     };
-    
-    fetch(`${base}/api/productos`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
+    //PRODUCTOS
+    fetch(`${base}/api/productos`, { headers })
       .then(res => res.json())
       .then(data => {
         if (mounted) {
           const productosAdaptados = data.map((p: any) => ({
             ...p,
-            precio: p.precioBase
+            precio: p.precioBase,
+            categoriaId: p.categoriaId || (p.categoria && p.categoria.id) || p.categoria_id
           }));
-          
-          console.log("Productos adaptados:", productosAdaptados);
           setMenu(productosAdaptados);
         }
       })
       .catch(err => {
         console.error("Fallo al cargar productos de la base de datos:", err);
+      });
+    //CATEGORIAS
+    fetch(`${base}/api/categorias`, { headers })
+      .then(r => {
+        if (!r.ok) {
+          console.warn(`Error ${r.status} al obtener categorías`);
+          return [];
+        }
+        return r.json();
+      })
+      .then(data => {
+
+        if (!mounted) return; 
+
+        if (Array.isArray(data)) {
+          setCategorias(data);
+          console.log("Categorías guardadas correctamente:", data);
+        } else {
+          console.warn('El backend no devolvió un array de categorías:', data);
+          setCategorias([]);
+        }
+      })
+      .catch(err => {
+        if (!mounted) return;
+        console.error('Error al obtener categorías:', err);
+        setCategorias([]);
       });
 
     return () => { mounted = false; };
@@ -81,6 +104,20 @@ export const PantallaPedido: React.FC<Props> = ({
       })
     : [];
 
+  // ============================================================
+  // LÓGICA DE FILTRADO DE CATEGORÍAS
+  // ============================================================
+  const menuFinal = menuSeguro.filter(producto => {
+
+    if (categoriaSeleccionada === null) return true;
+
+    const categoriaPulsada = categorias.find(c => c.id === categoriaSeleccionada);
+
+    return categoriaPulsada && producto.categoria === categoriaPulsada.nombre;
+  });
+
+  console.log("Mira cómo es un producto por dentro:", menuSeguro[0]);
+
   return (
     <div className="aplicacion">
       <header className="encabezado" onClick={irAStock} style={{ cursor: 'pointer' }}>
@@ -93,7 +130,7 @@ export const PantallaPedido: React.FC<Props> = ({
 
       <div className="aplicacion__contenedor">
         <SeccionMenu
-          elementosMenu={menuSeguro}
+          elementosMenu={menuFinal}
           categorias={categorias}
           categoriaSeleccionada={categoriaSeleccionada}
           onCambiarCategoria={setCategoriaSeleccionada}
