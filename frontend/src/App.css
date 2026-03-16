@@ -1065,3 +1065,96 @@ body {
   border-radius: 6px;
   cursor: pointer;
 }
+
+/* =========================================================
+   PANTALLA DE ALÉRGENOS
+========================================================= */
+
+.flex-centrado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.alergenos-contenedor {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  max-width: 700px;
+  width: 100%;
+  text-align: center;
+}
+
+.alergenos-titulo {
+  color: #667eea;
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.alergenos-subtitulo {
+  color: #555;
+  margin-bottom: 30px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.alergenos-cargando {
+  color: #888;
+  font-style: italic;
+  margin-bottom: 30px;
+}
+
+.alergenos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.alergeno-btn {
+  background: #f8f9fa;
+  border: 2px solid #ddd;
+  padding: 15px 10px;
+  border-radius: 10px;
+  font-weight: bold;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.alergeno-btn:hover {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+.alergeno-btn-activo {
+  background: #ef4444; /* Rojo alerta */
+  border-color: #dc2626;
+  color: white;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+}
+
+.alergeno-btn-activo:hover {
+  background: #dc2626;
+}
+
+.alergenos-btn-continuar {
+  background: #10b981; /* Verde de tu botón de aceptar pedido */
+  color: white;
+  border: none;
+  width: 100%;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.alergenos-btn-continuar:hover {
+  background: #059669;
+  transform: translateY(-2px);
+}
