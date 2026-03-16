@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { SeccionMenu } from '../componentes/SeccionMenu';
 import { SeccionPedido } from '../componentes/SeccionPedido';
 import type { ElementoMenu, ElementoPedido } from '../datos/tipos';
-import { datosMenu, obtenerDatosMenu } from '../datos/datosMenu';
 import '../App.css';
 
 interface Props {
   pedido: ElementoPedido[];
+  alergenosUsuario: number[];
   alAgregar: (elemento: ElementoMenu) => void;
   alActualizar: (nombre: string, cantidad: number) => void;
   alLimpiar: () => void;
@@ -17,6 +17,7 @@ interface Props {
 
 export const PantallaPedido: React.FC<Props> = ({
   pedido,
+  alergenosUsuario,
   alAgregar,
   alActualizar,
   alLimpiar,
@@ -25,28 +26,36 @@ export const PantallaPedido: React.FC<Props> = ({
   irAStock
 }) => {
 
-  const [menu, setMenu] = useState<ElementoMenu[]>(datosMenu);
-
+  const [menu, setMenu] = useState<ElementoMenu[]>([]);
   const [categorias, setCategorias] = useState<any[]>([]);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<number | null>(null);
 
   useEffect(() => {
     let mounted = true;
-
-    // Obtener token del localStorage
     const token = localStorage.getItem('token');
 
-    obtenerDatosMenu('', token).then(list => {
-      if (mounted) setMenu(list);
-    });
-
-    const base = (import.meta as any).env?.VITE_API_BASE || '';
-    const headers: Record<string, string> = {};
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    
-    fetch(base + "/api/categorias", { headers })
+    const base = (import.meta as any).env?.VITE_API_BASE || 'http://localhost:8080';
+    const headers: Record<string, string> = {
+      'Authorization': token ? `Bearer ${token}` : ''
+    };
+    //PRODUCTOS
+    fetch(`${base}/api/productos`, { headers })
+      .then(res => res.json())
+      .then(data => {
+        if (mounted) {
+          const productosAdaptados = data.map((p: any) => ({
+            ...p,
+            precio: p.precioBase,
+            categoriaId: p.categoriaId || (p.categoria && p.categoria.id) || p.categoria_id
+          }));
+          setMenu(productosAdaptados);
+        }
+      })
+      .catch(err => {
+        console.error("Fallo al cargar productos de la base de datos:", err);
+      });
+    //CATEGORIAS
+    fetch(`${base}/api/categorias`, { headers })
       .then(r => {
         if (!r.ok) {
           console.warn(`Error ${r.status} al obtener categorías`);
@@ -55,14 +64,19 @@ export const PantallaPedido: React.FC<Props> = ({
         return r.json();
       })
       .then(data => {
-        if (mounted && Array.isArray(data)) {
+
+        if (!mounted) return; 
+
+        if (Array.isArray(data)) {
           setCategorias(data);
+          console.log("Categorías guardadas correctamente:", data);
         } else {
-          console.warn('Categorías no es un array:', data);
+          console.warn('El backend no devolvió un array de categorías:', data);
           setCategorias([]);
         }
       })
       .catch(err => {
+        if (!mounted) return;
         console.error('Error al obtener categorías:', err);
         setCategorias([]);
       });
@@ -70,33 +84,53 @@ export const PantallaPedido: React.FC<Props> = ({
     return () => { mounted = false; };
   }, []);
 
+  // ============================================================
+  // LÓGICA DE FILTRADO DE ALÉRGENOS (POR ID)
+  // ============================================================
+  const menuSeguro = menu.length > 0 
+    ? menu.filter(producto => {
+        // Si el producto no tiene alérgenos registrados, es seguro
+        if (producto.alergenosIds === undefined) return true;
+         
+        if (producto.alergenosIds.length === 0) return true;
+
+        // Si alguno de los IDs de alérgenos del producto coincide 
+        // con los IDs que el usuario marcó, el producto es peligroso.
+        const esPeligroso = producto.alergenosIds.some(idAlergenoProducto => 
+          alergenosUsuario.includes(idAlergenoProducto)
+        );
+
+        return !esPeligroso;
+      })
+    : [];
+
+  // ============================================================
+  // LÓGICA DE FILTRADO DE CATEGORÍAS
+  // ============================================================
+  const menuFinal = menuSeguro.filter(producto => {
+
+    if (categoriaSeleccionada === null) return true;
+
+    const categoriaPulsada = categorias.find(c => c.id === categoriaSeleccionada);
+
+    return categoriaPulsada && producto.categoria === categoriaPulsada.nombre;
+  });
+
+  console.log("Mira cómo es un producto por dentro:", menuSeguro[0]);
+
   return (
     <div className="aplicacion">
-      <header
-        className="encabezado"
-        onClick={irAStock}
-        style={{ cursor: 'pointer' }}
-        title="Click para ir a Stock (truco)"
-      >
+      <header className="encabezado" onClick={irAStock} style={{ cursor: 'pointer' }}>
         <h1>CaféApp - IES JOSÉ ZERPA</h1>
-        
-        <button
-          className="btn-darkmode"
-          onClick={(e) => {
+        <button className="btn-darkmode" onClick={(e) => {
           e.stopPropagation();
           document.body.classList.toggle("dark-mode");
-          }}
-        >
-        🌙
-      </button>
-
-
+        }}>🌙</button>
       </header>
 
       <div className="aplicacion__contenedor">
-
         <SeccionMenu
-          elementosMenu={menu}
+          elementosMenu={menuFinal}
           categorias={categorias}
           categoriaSeleccionada={categoriaSeleccionada}
           onCambiarCategoria={setCategoriaSeleccionada}

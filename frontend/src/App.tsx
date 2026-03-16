@@ -13,6 +13,7 @@ import PantallaAdmin from './screens/PantallaAdmin';
 import PantallaEmpleados from './screens/PantallaEmpleados';
 import PantallaPedidosAdmin from './screens/PantallaPedidosAdmin';
 import PantallaEstadisticas from './screens/PantallaEstadisticas';
+import PantallaAlergenos from './screens/PantallaAlergenos';
 
 import SelectorCentro from './componentes/SelectorCentro';
 
@@ -23,6 +24,9 @@ export const App: React.FC = () => {
   const [usuario, setUsuario] = useState<any>(null);
 
   const [pedido, setPedido] = useState<ElementoPedido[]>([]);
+
+  // Estado para guardar los alérgenos del usuario actual
+  const [alergenosUsuario, setAlergenosUsuario] = useState<number[]>([]);
 
   // Centro seleccionado SOLO para admin
   const [centroSeleccionado, setCentroSeleccionado] = useState<number>(1);
@@ -42,7 +46,6 @@ export const App: React.FC = () => {
       usuario = loginData.usuario;
     }
 
-    // Normalizar rol si viene como string en vez de objeto
     if (usuario && typeof usuario.rol === 'string') {
       const mapaRoles: Record<string, number> = {
         'admin': 1,
@@ -63,7 +66,8 @@ export const App: React.FC = () => {
       const rol = usuario.rol.id;
       console.log('🎭 Rol detectado:', rol);
 
-      if (rol === 3) setPantalla("menu");
+      // Si es cliente (3), lo mandamos primero a declarar alérgenos
+      if (rol === 3) setPantalla("alergenos"); 
       else if (rol === 2) setPantalla("cocina");
       else if (rol === 1) setPantalla("admin");
     }
@@ -75,23 +79,17 @@ export const App: React.FC = () => {
     localStorage.removeItem("token");
     setPantalla("login");
     setPedido([]);
+    setAlergenosUsuario([]); // Limpiamos alérgenos al salir
   };
 
   // ============================================================
-  // 2. LÓGICA DEL PEDIDO
+  // LÓGICAS DE PEDIDO
   // ============================================================
 
   const agregarAlPedido = (elemento: ElementoMenu) => {
     const existente = pedido.find(item => item.nombre === elemento.nombre);
-
     if (existente) {
-      setPedido(
-        pedido.map(item =>
-          item.nombre === elemento.nombre
-            ? { ...item, cantidad: item.cantidad + 1 }
-            : item
-        )
-      );
+      setPedido(pedido.map(item => item.nombre === elemento.nombre ? { ...item, cantidad: item.cantidad + 1 } : item));
     } else {
       setPedido([...pedido, { ...elemento, cantidad: 1 }]);
     }
@@ -101,11 +99,7 @@ export const App: React.FC = () => {
     if (cantidad <= 0) {
       setPedido(pedido.filter(item => item.nombre !== nombre));
     } else {
-      setPedido(
-        pedido.map(item =>
-          item.nombre === nombre ? { ...item, cantidad } : item
-        )
-      );
+      setPedido(pedido.map(item => item.nombre === nombre ? { ...item, cantidad } : item));
     }
   };
 
@@ -118,23 +112,17 @@ export const App: React.FC = () => {
   };
 
   // ============================================================
-  // 3. NAVEGACIÓN ENTRE PANTALLAS
+  // NAVEGACIÓN
   // ============================================================
 
   const irAPago = () => {
-    if (pedido.length === 0) {
-      alert("El pedido está vacío");
-      return;
-    }
-    if (window.confirm("¿Confirmar pedido e ir a pagar?")) {
-      setPantalla("pago");
-    }
+    if (pedido.length === 0) return alert("El pedido está vacío");
+    if (window.confirm("¿Confirmar pedido e ir a pagar?")) setPantalla("pago");
   };
 
   const salir = () => {
-    if (window.confirm("¿Seguro que quieres volver al inicio/salir?")) {
-      setPantalla("menu");
-      limpiarPedido();
+    if (window.confirm("¿Seguro que quieres cerrar sesión?")) {
+      manejarLogout();
     }
   };
 
@@ -144,13 +132,12 @@ export const App: React.FC = () => {
   };
 
   // ============================================================
-  // 4. AUTOLOGIN SI YA HAY TOKEN
+  // AUTOLOGIN
   // ============================================================
 
-  useEffect(() => {
+useEffect(() => {
     const cargarUsuario = async () => {
       const BASE = (import.meta as any).env?.VITE_API_BASE || "";
-
       if (!token) return;
 
       try {
@@ -163,56 +150,75 @@ export const App: React.FC = () => {
           return;
         }
 
-        const usuario = await res.json();
-        setUsuario(usuario);
+        let usuarioRes = await res.json();
 
-        const rol = usuario.rol.id;
+        // Normalizamos el rol
+        if (usuarioRes && typeof usuarioRes.rol === 'string') {
+          const mapaRoles: Record<string, number> = {
+            'admin': 1,
+            'empleado': 2,
+            'cliente': 3,
+          };
+          usuarioRes = {
+            ...usuarioRes,
+            rol: { id: mapaRoles[usuarioRes.rol] ?? 3 }
+          };
+        }
 
-        if (rol === 3) setPantalla("menu");
-        if (rol === 2) setPantalla("cocina");
-        if (rol === 1) setPantalla("admin"); // admin → PantallaAdmin
+        setUsuario(usuarioRes);
+
+        const rol = usuarioRes.rol.id;
+
+        // Solo cambiamos la pantalla si el usuario acaba de entrar
+        setPantalla((pantallaActual) => {
+          if (pantallaActual === "login" || pantallaActual === "registro") {
+            if (rol === 3) return "alergenos";
+            if (rol === 2) return "cocina";
+            if (rol === 1) return "admin";
+          }
+          return pantallaActual;
+        });
 
       } catch (e) {
         manejarLogout();
       }
     };
-
     cargarUsuario();
-  }, []);
+  }, [token]);
 
   // ============================================================
-  // 5. RENDERIZADO DE PANTALLAS
+  // RENDERIZADO
   // ============================================================
 
   return (
     <>
-
-      {/* Selector de centro SOLO para admin */}
       {usuario?.rol?.id === 1 && (
-        <SelectorCentro
-          centroId={centroSeleccionado}
-          onChange={setCentroSeleccionado}
-        />
+        <SelectorCentro centroId={centroSeleccionado} onChange={setCentroSeleccionado} />
       )}
 
       {pantalla === "login" && (
-        <PantallaLogin
-          alLoginExitoso={manejarLoginExitoso}
-          irARegistro={() => setPantalla("registro")}
-        />
+        <PantallaLogin alLoginExitoso={manejarLoginExitoso} irARegistro={() => setPantalla("registro")} />
       )}
 
       {pantalla === "registro" && (
-        <PantallaRegistro
-          alRegistroExitoso={() => setPantalla("login")}
-          irALogin={() => setPantalla("login")}
+        <PantallaRegistro alRegistroExitoso={() => setPantalla("login")} irALogin={() => setPantalla("login")} />
+      )}
+
+      {/* PANTALLA ALÉRGENOS */}
+      {pantalla === "alergenos" && usuario?.rol?.id === 3 && (
+        <PantallaAlergenos 
+          onContinuar={(ids: number[]) => {
+            setAlergenosUsuario(ids);
+            setPantalla("menu");
+          }} 
         />
       )}
 
       {/* CLIENTE */}
-      {pantalla === "menu" && usuario && usuario.rol.id === 3 && (
+      {pantalla === "menu" && usuario?.rol?.id === 3 && (
         <PantallaPedido
           pedido={pedido}
+          alergenosUsuario={alergenosUsuario}
           alAgregar={agregarAlPedido}
           alActualizar={actualizarCantidad}
           alLimpiar={limpiarPedido}
@@ -223,65 +229,32 @@ export const App: React.FC = () => {
       )}
 
       {pantalla === "pago" && (
-        <PantallaPago
-          pedido={pedido}
-          total={calcularTotal()}
-          alSalir={() => setPantalla("menu")}
-          alConfirmarPago={confirmarPagoExitoso}
-        />
+        <PantallaPago pedido={pedido} total={calcularTotal()} alSalir={() => setPantalla("menu")} alConfirmarPago={confirmarPagoExitoso} />
       )}
 
-      {/* ADMIN → PantallaAdmin */}
-      {pantalla === "admin" && usuario && usuario.rol.id === 1 && (
-        <PantallaAdmin
-          irAStock={() => setPantalla("stock")}
-          irAPedidos={() => setPantalla("pedidosAdmin")}
-          irAEmpleados={() => setPantalla("empleados")}
-          irAEstadisticas={() => setPantalla("estadisticas")}
-          alSalir={manejarLogout}
-        />
+      {pantalla === "admin" && usuario?.rol?.id === 1 && (
+        <PantallaAdmin irAStock={() => setPantalla("stock")} irAPedidos={() => setPantalla("pedidosAdmin")} irAEmpleados={() => setPantalla("empleados")} irAEstadisticas={() => setPantalla("estadisticas")} alSalir={manejarLogout} />
       )}
 
-      {/* ADMIN → Gestión de Stock */}
-      {pantalla === "stock" && usuario && usuario.rol.id === 1 && (
-        <PantallaStock
-          centroId={centroSeleccionado}
-          alSalir={() => setPantalla("admin")}
-        />
+      {pantalla === "stock" && usuario?.rol?.id === 1 && (
+        <PantallaStock centroId={centroSeleccionado} alSalir={() => setPantalla("admin")} />
       )}
 
-      {/* ADMIN → Gestión de Pedidos */}
-      {pantalla === "pedidosAdmin" && usuario && usuario.rol.id === 1 && (
-        <PantallaPedidosAdmin
-          centroId={centroSeleccionado}
-          alSalir={() => setPantalla("admin")}
-        />
+      {pantalla === "pedidosAdmin" && usuario?.rol?.id === 1 && (
+        <PantallaPedidosAdmin centroId={centroSeleccionado} alSalir={() => setPantalla("admin")} />
       )}
 
-      {/* ADMIN → Gestión de Empleados */}
-      {pantalla === "empleados" && usuario && usuario.rol.id === 1 && (
-        <PantallaEmpleados
-          centroId={centroSeleccionado}
-          alSalir={() => setPantalla("admin")}
-        />
+      {pantalla === "empleados" && usuario?.rol?.id === 1 && (
+        <PantallaEmpleados centroId={centroSeleccionado} alSalir={() => setPantalla("admin")} />
       )}
 
-      {/* ADMIN → Estadísticas */}
-      {pantalla === "estadisticas" && usuario && usuario.rol.id === 1 && (
-        <PantallaEstadisticas
-          centroId={centroSeleccionado}
-          alSalir={() => setPantalla("admin")}
-        />
+      {pantalla === "estadisticas" && usuario?.rol?.id === 1 && (
+        <PantallaEstadisticas centroId={centroSeleccionado} alSalir={() => setPantalla("admin")} />
       )}
 
-      {/*  EMPLEADO */}
-      {pantalla === "cocina" && usuario && usuario.rol.id === 2 && (
-        <PantallaCocina
-          centroId={usuario.centro?.id}
-          alSalir={() => setPantalla("menu")}
-        />
+      {pantalla === "cocina" && usuario?.rol?.id === 2 && (
+        <PantallaCocina centroId={usuario.centro?.id} alSalir={manejarLogout} />
       )}
-
     </>
   );
 };

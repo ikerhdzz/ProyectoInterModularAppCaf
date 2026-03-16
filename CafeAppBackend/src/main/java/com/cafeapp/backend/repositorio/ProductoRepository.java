@@ -2,6 +2,8 @@ package com.cafeapp.backend.repositorio;
 
 import com.cafeapp.backend.modelo.Producto;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -11,7 +13,15 @@ import java.util.List;
 public interface ProductoRepository extends JpaRepository<Producto, Long> {
 
     /**
-     * Obtiene productos filtrados por categoría.
+     * Obtiene productos por categoría trayendo los alérgenos 
+     * en una sola consulta (Evita el error de lentitud N+1).
      */
-    List<Producto> findByCategoriaId(Long categoriaId);
+    @Query("SELECT DISTINCT p FROM Producto p LEFT JOIN FETCH p.alergenos WHERE p.categoria.id = :categoriaId")
+    List<Producto> findByCategoriaId(@Param("categoriaId") Long categoriaId);
+
+    /**
+     * Para cuando pides TODOS los productos (el listado general).
+     */
+    @Query("SELECT DISTINCT p FROM Producto p LEFT JOIN FETCH p.alergenos")
+    List<Producto> findAllWithAlergenos();
 }

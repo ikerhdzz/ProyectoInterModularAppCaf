@@ -1,5 +1,7 @@
 package com.cafeapp.backend.dto.producto;
 
+import java.util.List;
+
 /**
  * DTO de respuesta para un producto.
  */
@@ -10,5 +12,6 @@ public record ProductoResponse(
         String descripcion,
         String imagenUrl,
         String categoria,
-        boolean esModificable
+        boolean esModificable,
+        List<Long> alergenosIds
 ) {}

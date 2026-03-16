@@ -202,6 +202,12 @@ public class ProductoController {
     // ============================================================
 
     private ProductoResponse convertir(Producto p) {
+
+        //Extraer IDs
+        List<Long> ids = (p.getAlergenos() != null) 
+                ? p.getAlergenos().stream().map(a -> a.getId()).toList() 
+                : List.of(); // Si es null, devolvemos una lista vacía oficial
+
         return new ProductoResponse(
                 p.getId(),
                 p.getNombre(),
@@ -209,7 +215,8 @@ public class ProductoController {
                 p.getDescripcion(),
                 p.getImagenUrl(),
                 p.getCategoria() != null ? p.getCategoria().getNombre() : "Sin categoría",
-                p.getEsModificable()
+                p.getEsModificable(),
+                ids
         );
     }
 }

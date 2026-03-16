@@ -17,10 +17,6 @@ export const SeccionMenu: React.FC<Props> = ({
   alAgregarAlPedido
 }) => {
 
-  const elementosFiltrados = categoriaSeleccionada
-    ? elementosMenu.filter(e => e.categoriaId === categoriaSeleccionada)
-    : elementosMenu;
-
   return (
     <div className="seccion-menu">
       <h2>Menú</h2>
@@ -47,7 +43,7 @@ export const SeccionMenu: React.FC<Props> = ({
 
       {/* PRODUCTOS */}
       <div className="seccion-menu__cuadricula">
-        {elementosFiltrados.map((item, i) => (
+        {elementosMenu.map((item, i) => (
           <div
             key={i}
             className="tarjeta-menu"

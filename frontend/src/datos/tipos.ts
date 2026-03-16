@@ -5,6 +5,8 @@ export interface ElementoMenu {
   imagen?: string;
   categoriaId?: number;
   categoriaNombre?: string;
+  alergenosIds: number[];
+  categoria: string;
 }
 
 export interface ElementoPedido extends ElementoMenu {
@@ -45,4 +47,4 @@ export interface Usuario {
   };
 }
 
-export type Pantalla = "login" | "registro" | "menu" | "pago" | "stock" | "admin" | "pedidosAdmin" | "empleados" | "estadisticas" | "cocina";
+export type Pantalla = "login" | "registro" | "alergenos" | "menu" | "pago" | "admin" | "stock" | "pedidosAdmin" | "empleados" | "estadisticas" | "cocina";
