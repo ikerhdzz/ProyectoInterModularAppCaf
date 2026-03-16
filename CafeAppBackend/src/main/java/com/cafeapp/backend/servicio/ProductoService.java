@@ -49,7 +49,7 @@ public class ProductoService {
      * Lista todos los productos.
      */
     public List<Producto> listar() {
-        return productoRepository.findAll();
+        return productoRepository.findAllWithAlergenos();
     }
 
     /**
