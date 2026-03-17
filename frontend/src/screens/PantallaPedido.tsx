@@ -29,6 +29,7 @@ export const PantallaPedido: React.FC<Props> = ({
   const [menu, setMenu] = useState<ElementoMenu[]>([]);
   const [categorias, setCategorias] = useState<any[]>([]);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<number | null>(null);
+  const [productoViendo, setProductoViendo] = useState<ElementoMenu | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -134,7 +135,7 @@ export const PantallaPedido: React.FC<Props> = ({
           categorias={categorias}
           categoriaSeleccionada={categoriaSeleccionada}
           onCambiarCategoria={setCategoriaSeleccionada}
-          alAgregarAlPedido={alAgregar}
+          alSeleccionarProducto={setProductoViendo}
         />
 
         <SeccionPedido
@@ -145,6 +146,45 @@ export const PantallaPedido: React.FC<Props> = ({
           manejarSalir={manejarSalir}
         />
       </div>
+
+      {/* =========================================
+                      MODAL DE PRODUCTO
+          ========================================= */}
+      {productoViendo && (
+        <div className="modal-overlay" onClick={() => setProductoViendo(null)}>
+          {/* Evitamos que el clic dentro de la tarjeta cierre el modal */}
+          <div className="modal-tarjeta" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-cerrar" onClick={() => setProductoViendo(null)}>
+              ✕
+            </button>
+            
+            <img 
+              src={productoViendo.imagenUrl ?? '/img/imagenNoDisponible.jpg'} 
+              alt={productoViendo.nombre} 
+              className="modal-imagen"
+            />
+            
+            <div className="modal-info">
+              <h2>{productoViendo.nombre}</h2>
+              <p className="modal-precio">{productoViendo.precio.toFixed(2)}€</p>
+              
+              {productoViendo.descripcion && (
+                <p className="modal-descripcion">{productoViendo.descripcion}</p>
+              )}
+              
+              <button 
+                className="btn-añadir-modal"
+                onClick={() => {
+                  alAgregar(productoViendo);
+                  setProductoViendo(null);
+                }}
+              >
+                Añadir al pedido
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

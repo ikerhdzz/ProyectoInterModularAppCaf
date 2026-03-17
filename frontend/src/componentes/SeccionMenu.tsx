@@ -6,7 +6,7 @@ interface Props {
   categorias: { id: number; nombre: string; icono_url?: string }[];
   categoriaSeleccionada: number | null;
   onCambiarCategoria: (id: number | null) => void;
-  alAgregarAlPedido: (elemento: ElementoMenu) => void;
+  alSeleccionarProducto: (elemento: ElementoMenu) => void; 
 }
 
 export const SeccionMenu: React.FC<Props> = ({
@@ -14,7 +14,7 @@ export const SeccionMenu: React.FC<Props> = ({
   categorias,
   categoriaSeleccionada,
   onCambiarCategoria,
-  alAgregarAlPedido
+  alSeleccionarProducto
 }) => {
 
   return (
@@ -47,10 +47,10 @@ export const SeccionMenu: React.FC<Props> = ({
           <div
             key={i}
             className="tarjeta-menu"
-            onClick={() => alAgregarAlPedido(item)}
+            onClick={() => alSeleccionarProducto(item)}
           >
             <img
-              src={item.imagen ?? '/img/imagenNoDisponible.jpg'}
+              src={item.imagenUrl ?? '/img/imagenNoDisponible.jpg'}
               alt={item.nombre}
               className="tarjeta-menu__imagen"
             />

@@ -7,6 +7,8 @@ export interface ElementoMenu {
   categoriaNombre?: string;
   alergenosIds: number[];
   categoria: string;
+  descripcion?: string;
+  imagenUrl?: string;
 }
 
 export interface ElementoPedido extends ElementoMenu {
