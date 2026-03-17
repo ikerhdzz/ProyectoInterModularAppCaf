@@ -1,12 +1,15 @@
 import React from 'react';
 import type { ElementoMenu } from '../datos/tipos';
+import { useRef } from 'react';
 
 interface Props {
   elementosMenu: ElementoMenu[];
   categorias: { id: number; nombre: string; icono_url?: string }[];
   categoriaSeleccionada: number | null;
   onCambiarCategoria: (id: number | null) => void;
-  alAgregarAlPedido: (elemento: ElementoMenu) => void;
+  alSeleccionarProducto: (elemento: ElementoMenu) => void;
+  cantidadPedido: number;
+  onVerPedido: () => void;
 }
 
 export const SeccionMenu: React.FC<Props> = ({
@@ -14,15 +17,56 @@ export const SeccionMenu: React.FC<Props> = ({
   categorias,
   categoriaSeleccionada,
   onCambiarCategoria,
-  alAgregarAlPedido
+  alSeleccionarProducto,
+  cantidadPedido,
+  onVerPedido
 }) => {
+
+
+const scrollRef = useRef<HTMLDivElement>(null);
+const isDragging = useRef(false);
+const startX = useRef(0);
+const scrollLeft = useRef(0);
+//Agarrar
+const onMouseDown = (e: React.MouseEvent) => {
+  isDragging.current = true;
+  if (!scrollRef.current) return;
+  startX.current = e.pageX - scrollRef.current.offsetLeft;
+  scrollLeft.current = scrollRef.current.scrollLeft;
+};
+//Soltar
+const onMouseLeaveOrUp = () => {
+  isDragging.current = false;
+};
+
+//Mover
+const onMouseMove = (e: React.MouseEvent) => {
+  if (!isDragging.current || !scrollRef.current) return;
+  e.preventDefault();
+  const x = e.pageX - scrollRef.current.offsetLeft;
+  const recorrido = (x - startX.current) * 2;
+  scrollRef.current.scrollLeft = scrollLeft.current - recorrido;
+};
 
   return (
     <div className="seccion-menu">
-      <h2>Menú</h2>
+      <div className="seccion-menu__header">
+        <h2>Menú</h2>
+        <button className="btn-carrito-inline" onClick={onVerPedido}>
+          🛒
+          {cantidadPedido > 0 && <span className="carrito-badge">{cantidadPedido}</span>}
+        </button>
+      </div>
 
       {/* CUADRÍCULA DE CATEGORÍAS */}
-      <div className="categorias-grid">
+      <div 
+        className="categorias-nav-scroll"
+        ref={scrollRef}
+        onMouseDown={onMouseDown}
+        onMouseLeave={onMouseLeaveOrUp}
+        onMouseUp={onMouseLeaveOrUp}
+        onMouseMove={onMouseMove}
+      >
         <div
           className={`categoria-card ${!categoriaSeleccionada ? "cat-activa" : ""}`}
           onClick={() => onCambiarCategoria(null)}
@@ -47,10 +91,10 @@ export const SeccionMenu: React.FC<Props> = ({
           <div
             key={i}
             className="tarjeta-menu"
-            onClick={() => alAgregarAlPedido(item)}
+            onClick={() => alSeleccionarProducto(item)}
           >
             <img
-              src={item.imagen ?? '/img/imagenNoDisponible.jpg'}
+              src={item.imagenUrl ?? '/img/imagenNoDisponible.jpg'}
               alt={item.nombre}
               className="tarjeta-menu__imagen"
             />

@@ -29,6 +29,9 @@ export const PantallaPedido: React.FC<Props> = ({
   const [menu, setMenu] = useState<ElementoMenu[]>([]);
   const [categorias, setCategorias] = useState<any[]>([]);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<number | null>(null);
+  const [productoViendo, setProductoViendo] = useState<ElementoMenu | null>(null);
+  const [productoModificando, setProductoModificando] = useState<ElementoMenu | null>(null);
+  const [vistaActual, setVistaActual] = useState<'menu' | 'carrito'>('menu');
 
   useEffect(() => {
     let mounted = true;
@@ -122,29 +125,135 @@ export const PantallaPedido: React.FC<Props> = ({
     <div className="aplicacion">
       <header className="encabezado" onClick={irAStock} style={{ cursor: 'pointer' }}>
         <h1>CaféApp - IES JOSÉ ZERPA</h1>
-        <button className="btn-darkmode" onClick={(e) => {
-          e.stopPropagation();
-          document.body.classList.toggle("dark-mode");
-        }}>🌙</button>
+
+          {/* Modo oscuro */}
+          <button className="btn-darkmode" onClick={(e) => {
+            e.stopPropagation();
+            document.body.classList.toggle("dark-mode");
+          }}>🌙</button>
       </header>
 
-      <div className="aplicacion__contenedor">
-        <SeccionMenu
-          elementosMenu={menuFinal}
-          categorias={categorias}
-          categoriaSeleccionada={categoriaSeleccionada}
-          onCambiarCategoria={setCategoriaSeleccionada}
-          alAgregarAlPedido={alAgregar}
-        />
+      <main className="contenido-principal">
+        {/* Sección menú */}
+        {vistaActual === 'menu' ? (
+          <SeccionMenu
+            elementosMenu={menuFinal}
+            categorias={categorias}
+            categoriaSeleccionada={categoriaSeleccionada}
+            onCambiarCategoria={setCategoriaSeleccionada}
+            alSeleccionarProducto={setProductoViendo}
+            cantidadPedido={pedido.length}
+            onVerPedido={() => setVistaActual('carrito')}
+          />
+        ) : (
+          <div className="contenedor-pedido-pantalla">
+             {/* Pedido */}
+             <SeccionPedido
+                pedido={pedido}
+                alAceptar={alAceptar}
+                alActualizarCantidad={alActualizar}
+                alLimpiarPedido={alLimpiar}
+                manejarSalir={() => setVistaActual('menu')}
+                onVolver={() => setVistaActual('menu')}
+              />
+          </div>
+        )}
+      </main>
 
-        <SeccionPedido
-          pedido={pedido}
-          alAceptar={alAceptar}
-          alActualizarCantidad={alActualizar}
-          alLimpiarPedido={alLimpiar}
-          manejarSalir={manejarSalir}
-        />
-      </div>
+      {/* =========================================
+                          PRODUCTO
+          ========================================= */}
+      {productoViendo && (
+        <div className="modal-overlay" onClick={() => setProductoViendo(null)}>
+          {/* Evitamos que el clic dentro de la tarjeta cierre el modal */}
+          <div className="modal-tarjeta" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-cerrar" onClick={() => setProductoViendo(null)}>
+              ✕
+            </button>
+            
+            <img 
+              src={productoViendo.imagenUrl ?? '/img/imagenNoDisponible.jpg'} 
+              alt={productoViendo.nombre} 
+              className="modal-imagen"
+            />
+            
+            <div className="modal-info">
+              <h2>{productoViendo.nombre}</h2>
+              <p className="modal-precio">{productoViendo.precio.toFixed(2)}€</p>
+              
+              {productoViendo.descripcion && (
+                <p className="modal-descripcion">{productoViendo.descripcion}</p>
+              )}
+
+              {/* Botones de acción del primer modal */}
+              <div className="modal-botones">
+
+                <button 
+                  className="btn-modificar-modal"
+                  onClick={() => {
+                    setProductoModificando(productoViendo);
+                    setProductoViendo(null); 
+                  }}
+                >
+                  Modificar producto
+                </button>
+                
+                <button 
+                  className="btn-añadir-modal"
+                  onClick={() => {
+                    alAgregar(productoViendo);
+                    setProductoViendo(null);
+                  }}
+                >
+                  Añadir al pedido
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================
+                    MODIFICAR PRODUCTO 
+          ========================================= */}
+      {productoModificando && (
+        <div className="modal-overlay" onClick={() => setProductoModificando(null)}>
+          <div className="modal-tarjeta" onClick={(e) => e.stopPropagation()}>
+            
+            {/* Botón para volver al modal anterior */}
+            <button 
+              className="modal-cerrar" 
+              onClick={() => {
+                setProductoViendo(productoModificando);
+                setProductoModificando(null);
+              }}
+            >
+              ←
+            </button>
+            
+            <img 
+              src={productoModificando.imagenUrl ?? '/img/imagenNoDisponible.jpg'} 
+              alt={productoModificando.nombre} 
+              className="modal-imagen"
+            />
+            
+            <div className="modal-info">
+              <h2>{productoModificando.nombre}</h2>
+              <p className="modal-precio">{productoModificando.precio.toFixed(2)}€</p>
+              
+              <button 
+                className="btn-añadir-modal"
+                onClick={() => {
+                  alAgregar(productoModificando);
+                  setProductoModificando(null);
+                }}
+              >
+                Confirmar y Añadir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

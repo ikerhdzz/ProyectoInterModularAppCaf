@@ -10,6 +10,9 @@
 /* Garantizar que el body siempre muestre el gradiente y ocupe la altura */
 html, body, #root {
   height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Esto prohíbe el scroll horizontal en toda la web */
 }
 
 body {
@@ -63,6 +66,7 @@ body {
   border-radius: 15px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   margin-bottom: 40px;
+  min-width: 0; /* Evita que la tarjeta se estire! */
 }
 
 .seccion-menu h2 {
@@ -1157,4 +1161,286 @@ body {
 .alergenos-btn-continuar:hover {
   background: #059669;
   transform: translateY(-2px);
+}
+
+
+/* 1. EL CARRIL (El contenedor) */
+.categorias-nav-scroll {
+  display: flex;
+  gap: 12px; /* Espacio entre las tarjetas */
+  overflow-x: auto; /* Activa el scroll horizontal solo aquí */
+  
+  /* Bloquear el ancho al 100% de la pantalla */
+  width: 100%;
+  max-width: 100%; 
+  box-sizing: border-box; /* Evita que el padding sume ancho extra y rompa la pantalla */
+  padding: 15px 15px;
+
+  /* Antisubrayado */
+  user-select: none; 
+  -webkit-user-select: none; /* Para que funcione en Safari/Apple */
+  
+  cursor: grab;
+  
+  /* Desplazamiento táctil con inercia (como en las apps nativas) */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ocultar la barra gris fea de scroll */
+.categorias-nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+.categorias-nav-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.categorias-nav-scroll:active {
+  cursor: grabbing; 
+}
+
+/* 2. LAS TARJETAS (Los botones) */
+.categoria-card {
+  /* flex: 0 0 auto; obliga a la tarjeta a mantener su tamaño 
+     y prohíbe que encoja o que empuje la pantalla. ¡Es obligatorio para el scroll! */
+  flex: 0 0 auto; 
+  
+  /* Aquí mantienes los estilos visuales que ya tenías (no los borres) */
+  cursor: pointer;
+
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* =========================================
+   ESTILOS DEL MODAL DE PRODUCTO
+   ========================================= */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6); /* Fondo oscuro transparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Asegura que esté por encima de todo */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.modal-tarjeta {
+  background: white;
+  width: 100%;
+  max-width: 400px; /* Tamaño máximo en PC */
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  animation: subirModal 0.3s ease-out; /* Animación suave al abrir */
+}
+
+@keyframes subirModal {
+  from { opacity: 0; transform: translateY(50px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-cerrar {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-imagen {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  background-color: #f0f0f0;
+}
+
+.modal-info {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-info h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.modal-precio {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #6C63FF; /* Usa el color principal de tu app */
+  margin: 0;
+}
+
+.modal-descripcion {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.btn-añadir-modal {
+  background-color: #6C63FF; /* Tu color morado/azul */
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-añadir-modal:active {
+  opacity: 0.8;
+}
+
+/* Contenedor para apilar los botones del modal */
+.modal-botones {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+/* El nuevo botón de modificar (Estilo secundario) */
+.btn-modificar-modal {
+  background-color: transparent;
+  color: #6C63FF; /* Usa tu color principal */
+  border: 2px solid #6C63FF;
+  padding: 15px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-modificar-modal:active {
+  background-color: rgba(108, 99, 255, 0.1); /* Efecto al pulsar */
+}
+
+.btn-carrito {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  position: relative;
+}
+/* Alineación del título Menú y el Carrito */
+.seccion-menu__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.btn-carrito-inline {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.carrito-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #ff4757;
+  color: white;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+/* Ajuste del contenedor para que ocupe toda la pantalla */
+.contenido-principal {
+  width: 100%;
+  max-width: 800px; /* O el ancho que prefieras */
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Estilo del botón volver en el pedido */
+.btn-volver {
+  background: #f0f0f0;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-weight: bold;
+  color: #6C63FF;
+  cursor: pointer;
+  margin-bottom: 15px;
+  transition: background 0.2s;
+}
+
+.btn-volver:hover {
+  background: #e5e5e5;
+}
+
+/* Cabecera de la sección de pedido (Simétrica a la del menú) */
+.seccion-pedido__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* Botón Volver alineado a la derecha */
+.btn-volver-inline {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: bold;
+  color: #6C63FF;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+}
+
+.btn-volver-inline:hover {
+  background: #f8f8f8;
+  transform: translateY(-1px);
+}
+
+.btn-volver-inline:active {
+  transform: translateY(0);
+}
+
+/* Importante: Eliminar el display: flex de .aplicacion__contenedor si lo tenías 
+   para que no intente poner menú y pedido uno al lado del otro */
+.aplicacion__contenedor {
+  display: block; 
 }

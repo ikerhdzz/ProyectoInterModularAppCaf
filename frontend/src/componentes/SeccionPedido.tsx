@@ -10,6 +10,7 @@ interface PropsSeccionPedido {
   alLimpiarPedido: () => void;
   alAceptar: () => void;
   manejarSalir: () => void;
+  onVolver: () => void;
 }
 
 export const SeccionPedido: React.FC<PropsSeccionPedido> = ({
@@ -17,7 +18,8 @@ export const SeccionPedido: React.FC<PropsSeccionPedido> = ({
   alActualizarCantidad,
   alLimpiarPedido,
   alAceptar,
-  manejarSalir
+  manejarSalir,
+  onVolver
 }) => {
   const calcularSubtotal = (): number => {
     return pedido.reduce((total, elemento) => 
@@ -39,7 +41,12 @@ export const SeccionPedido: React.FC<PropsSeccionPedido> = ({
 
   return (
     <div className="seccion-pedido">
-      <h2>Pedido Actual</h2>
+      <div className="seccion-pedido__header">
+        <h2>Pedido Actual</h2>
+        <button className="btn-volver-inline" onClick={onVolver}>
+          ← Volver
+        </button>
+      </div>
       
       {pedido.length === 0 ? (
         <p className="seccion-pedido__vacio">No hay productos en el pedido</p>
