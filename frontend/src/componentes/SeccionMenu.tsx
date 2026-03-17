@@ -22,7 +22,7 @@ export const SeccionMenu: React.FC<Props> = ({
       <h2>Menú</h2>
 
       {/* CUADRÍCULA DE CATEGORÍAS */}
-      <div className="categorias-grid">
+      <div className="categorias-nav-scroll">
         <div
           className={`categoria-card ${!categoriaSeleccionada ? "cat-activa" : ""}`}
           onClick={() => onCambiarCategoria(null)}

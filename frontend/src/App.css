@@ -10,6 +10,9 @@
 /* Garantizar que el body siempre muestre el gradiente y ocupe la altura */
 html, body, #root {
   height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Esto prohíbe el scroll horizontal en toda la web */
 }
 
 body {
@@ -63,6 +66,7 @@ body {
   border-radius: 15px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   margin-bottom: 40px;
+  min-width: 0; /* Evita que la tarjeta se estire! */
 }
 
 .seccion-menu h2 {
@@ -1157,4 +1161,40 @@ body {
 .alergenos-btn-continuar:hover {
   background: #059669;
   transform: translateY(-2px);
+}
+
+
+/* 1. EL CARRIL (El contenedor) */
+.categorias-nav-scroll {
+  display: flex;
+  gap: 12px; /* Espacio entre las tarjetas */
+  overflow-x: auto; /* Activa el scroll horizontal solo aquí */
+  
+  /* Bloquear el ancho al 100% de la pantalla */
+  width: 100%;
+  max-width: 100%; 
+  box-sizing: border-box; /* Evita que el padding sume ancho extra y rompa la pantalla */
+  padding: 10px 15px; /* Un poco de aire para que no se pegue a los bordes del móvil */
+  
+  /* Desplazamiento táctil con inercia (como en las apps nativas) */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ocultar la barra gris fea de scroll */
+.categorias-nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+.categorias-nav-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* 2. LAS TARJETAS (Los botones) */
+.categoria-card {
+  /* flex: 0 0 auto; obliga a la tarjeta a mantener su tamaño 
+     y prohíbe que encoja o que empuje la pantalla. ¡Es obligatorio para el scroll! */
+  flex: 0 0 auto; 
+  
+  /* Aquí mantienes los estilos visuales que ya tenías (no los borres) */
+  cursor: pointer;
 }
