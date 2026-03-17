@@ -1315,3 +1315,28 @@ body {
 .btn-añadir-modal:active {
   opacity: 0.8;
 }
+
+/* Contenedor para apilar los botones del modal */
+.modal-botones {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+/* El nuevo botón de modificar (Estilo secundario) */
+.btn-modificar-modal {
+  background-color: transparent;
+  color: #6C63FF; /* Usa tu color principal */
+  border: 2px solid #6C63FF;
+  padding: 15px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-modificar-modal:active {
+  background-color: rgba(108, 99, 255, 0.1); /* Efecto al pulsar */
+}

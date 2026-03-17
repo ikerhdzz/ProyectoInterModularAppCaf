@@ -30,6 +30,7 @@ export const PantallaPedido: React.FC<Props> = ({
   const [categorias, setCategorias] = useState<any[]>([]);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<number | null>(null);
   const [productoViendo, setProductoViendo] = useState<ElementoMenu | null>(null);
+  const [productoModificando, setProductoModificando] = useState<ElementoMenu | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -148,7 +149,7 @@ export const PantallaPedido: React.FC<Props> = ({
       </div>
 
       {/* =========================================
-                      MODAL DE PRODUCTO
+                          PRODUCTO
           ========================================= */}
       {productoViendo && (
         <div className="modal-overlay" onClick={() => setProductoViendo(null)}>
@@ -171,15 +172,71 @@ export const PantallaPedido: React.FC<Props> = ({
               {productoViendo.descripcion && (
                 <p className="modal-descripcion">{productoViendo.descripcion}</p>
               )}
+
+              {/* Botones de acción del primer modal */}
+              <div className="modal-botones">
+
+                <button 
+                  className="btn-modificar-modal"
+                  onClick={() => {
+                    setProductoModificando(productoViendo);
+                    setProductoViendo(null); 
+                  }}
+                >
+                  Modificar producto
+                </button>
+                
+                <button 
+                  className="btn-añadir-modal"
+                  onClick={() => {
+                    alAgregar(productoViendo);
+                    setProductoViendo(null);
+                  }}
+                >
+                  Añadir al pedido
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================
+                    MODIFICAR PRODUCTO 
+          ========================================= */}
+      {productoModificando && (
+        <div className="modal-overlay" onClick={() => setProductoModificando(null)}>
+          <div className="modal-tarjeta" onClick={(e) => e.stopPropagation()}>
+            
+            {/* Botón para volver al modal anterior */}
+            <button 
+              className="modal-cerrar" 
+              onClick={() => {
+                setProductoViendo(productoModificando);
+                setProductoModificando(null);
+              }}
+            >
+              ←
+            </button>
+            
+            <img 
+              src={productoModificando.imagenUrl ?? '/img/imagenNoDisponible.jpg'} 
+              alt={productoModificando.nombre} 
+              className="modal-imagen"
+            />
+            
+            <div className="modal-info">
+              <h2>{productoModificando.nombre}</h2>
+              <p className="modal-precio">{productoModificando.precio.toFixed(2)}€</p>
               
               <button 
                 className="btn-añadir-modal"
                 onClick={() => {
-                  alAgregar(productoViendo);
-                  setProductoViendo(null);
+                  alAgregar(productoModificando);
+                  setProductoModificando(null);
                 }}
               >
-                Añadir al pedido
+                Confirmar y Añadir
               </button>
             </div>
           </div>
