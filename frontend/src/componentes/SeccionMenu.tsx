@@ -1,5 +1,6 @@
 import React from 'react';
 import type { ElementoMenu } from '../datos/tipos';
+import { useRef } from 'react';
 
 interface Props {
   elementosMenu: ElementoMenu[];
@@ -17,12 +18,45 @@ export const SeccionMenu: React.FC<Props> = ({
   alSeleccionarProducto
 }) => {
 
+
+const scrollRef = useRef<HTMLDivElement>(null);
+const isDragging = useRef(false);
+const startX = useRef(0);
+const scrollLeft = useRef(0);
+//Agarrar
+const onMouseDown = (e: React.MouseEvent) => {
+  isDragging.current = true;
+  if (!scrollRef.current) return;
+  startX.current = e.pageX - scrollRef.current.offsetLeft;
+  scrollLeft.current = scrollRef.current.scrollLeft;
+};
+//Soltar
+const onMouseLeaveOrUp = () => {
+  isDragging.current = false;
+};
+
+//Mover
+const onMouseMove = (e: React.MouseEvent) => {
+  if (!isDragging.current || !scrollRef.current) return;
+  e.preventDefault();
+  const x = e.pageX - scrollRef.current.offsetLeft;
+  const recorrido = (x - startX.current) * 2;
+  scrollRef.current.scrollLeft = scrollLeft.current - recorrido;
+};
+
   return (
     <div className="seccion-menu">
       <h2>Menú</h2>
 
       {/* CUADRÍCULA DE CATEGORÍAS */}
-      <div className="categorias-nav-scroll">
+      <div 
+        className="categorias-nav-scroll"
+        ref={scrollRef}
+        onMouseDown={onMouseDown}
+        onMouseLeave={onMouseLeaveOrUp}
+        onMouseUp={onMouseLeaveOrUp}
+        onMouseMove={onMouseMove}
+      >
         <div
           className={`categoria-card ${!categoriaSeleccionada ? "cat-activa" : ""}`}
           onClick={() => onCambiarCategoria(null)}
