@@ -1340,3 +1340,107 @@ body {
 .btn-modificar-modal:active {
   background-color: rgba(108, 99, 255, 0.1); /* Efecto al pulsar */
 }
+
+.btn-carrito {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  position: relative;
+}
+/* Alineación del título Menú y el Carrito */
+.seccion-menu__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.btn-carrito-inline {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.carrito-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #ff4757;
+  color: white;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+/* Ajuste del contenedor para que ocupe toda la pantalla */
+.contenido-principal {
+  width: 100%;
+  max-width: 800px; /* O el ancho que prefieras */
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Estilo del botón volver en el pedido */
+.btn-volver {
+  background: #f0f0f0;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-weight: bold;
+  color: #6C63FF;
+  cursor: pointer;
+  margin-bottom: 15px;
+  transition: background 0.2s;
+}
+
+.btn-volver:hover {
+  background: #e5e5e5;
+}
+
+/* Cabecera de la sección de pedido (Simétrica a la del menú) */
+.seccion-pedido__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* Botón Volver alineado a la derecha */
+.btn-volver-inline {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: bold;
+  color: #6C63FF;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+}
+
+.btn-volver-inline:hover {
+  background: #f8f8f8;
+  transform: translateY(-1px);
+}
+
+.btn-volver-inline:active {
+  transform: translateY(0);
+}
+
+/* Importante: Eliminar el display: flex de .aplicacion__contenedor si lo tenías 
+   para que no intente poner menú y pedido uno al lado del otro */
+.aplicacion__contenedor {
+  display: block; 
+}

@@ -31,6 +31,7 @@ export const PantallaPedido: React.FC<Props> = ({
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<number | null>(null);
   const [productoViendo, setProductoViendo] = useState<ElementoMenu | null>(null);
   const [productoModificando, setProductoModificando] = useState<ElementoMenu | null>(null);
+  const [vistaActual, setVistaActual] = useState<'menu' | 'carrito'>('menu');
 
   useEffect(() => {
     let mounted = true;
@@ -124,29 +125,40 @@ export const PantallaPedido: React.FC<Props> = ({
     <div className="aplicacion">
       <header className="encabezado" onClick={irAStock} style={{ cursor: 'pointer' }}>
         <h1>CaféApp - IES JOSÉ ZERPA</h1>
-        <button className="btn-darkmode" onClick={(e) => {
-          e.stopPropagation();
-          document.body.classList.toggle("dark-mode");
-        }}>🌙</button>
+
+          {/* Modo oscuro */}
+          <button className="btn-darkmode" onClick={(e) => {
+            e.stopPropagation();
+            document.body.classList.toggle("dark-mode");
+          }}>🌙</button>
       </header>
 
-      <div className="aplicacion__contenedor">
-        <SeccionMenu
-          elementosMenu={menuFinal}
-          categorias={categorias}
-          categoriaSeleccionada={categoriaSeleccionada}
-          onCambiarCategoria={setCategoriaSeleccionada}
-          alSeleccionarProducto={setProductoViendo}
-        />
-
-        <SeccionPedido
-          pedido={pedido}
-          alAceptar={alAceptar}
-          alActualizarCantidad={alActualizar}
-          alLimpiarPedido={alLimpiar}
-          manejarSalir={manejarSalir}
-        />
-      </div>
+      <main className="contenido-principal">
+        {/* Sección menú */}
+        {vistaActual === 'menu' ? (
+          <SeccionMenu
+            elementosMenu={menuFinal}
+            categorias={categorias}
+            categoriaSeleccionada={categoriaSeleccionada}
+            onCambiarCategoria={setCategoriaSeleccionada}
+            alSeleccionarProducto={setProductoViendo}
+            cantidadPedido={pedido.length}
+            onVerPedido={() => setVistaActual('carrito')}
+          />
+        ) : (
+          <div className="contenedor-pedido-pantalla">
+             {/* Pedido */}
+             <SeccionPedido
+                pedido={pedido}
+                alAceptar={alAceptar}
+                alActualizarCantidad={alActualizar}
+                alLimpiarPedido={alLimpiar}
+                manejarSalir={() => setVistaActual('menu')}
+                onVolver={() => setVistaActual('menu')}
+              />
+          </div>
+        )}
+      </main>
 
       {/* =========================================
                           PRODUCTO

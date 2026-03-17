@@ -7,7 +7,9 @@ interface Props {
   categorias: { id: number; nombre: string; icono_url?: string }[];
   categoriaSeleccionada: number | null;
   onCambiarCategoria: (id: number | null) => void;
-  alSeleccionarProducto: (elemento: ElementoMenu) => void; 
+  alSeleccionarProducto: (elemento: ElementoMenu) => void;
+  cantidadPedido: number;
+  onVerPedido: () => void;
 }
 
 export const SeccionMenu: React.FC<Props> = ({
@@ -15,7 +17,9 @@ export const SeccionMenu: React.FC<Props> = ({
   categorias,
   categoriaSeleccionada,
   onCambiarCategoria,
-  alSeleccionarProducto
+  alSeleccionarProducto,
+  cantidadPedido,
+  onVerPedido
 }) => {
 
 
@@ -46,7 +50,13 @@ const onMouseMove = (e: React.MouseEvent) => {
 
   return (
     <div className="seccion-menu">
-      <h2>Menú</h2>
+      <div className="seccion-menu__header">
+        <h2>Menú</h2>
+        <button className="btn-carrito-inline" onClick={onVerPedido}>
+          🛒
+          {cantidadPedido > 0 && <span className="carrito-badge">{cantidadPedido}</span>}
+        </button>
+      </div>
 
       {/* CUADRÍCULA DE CATEGORÍAS */}
       <div 
